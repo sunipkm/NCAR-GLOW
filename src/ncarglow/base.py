@@ -430,6 +430,58 @@ def glowparse(raw: str) -> xarray.Dataset:
     # %% assemble output
     iono = xarray.merge((iono, ver, prodloss, precip, excite))
 
+    unit_dict = {'Tn': 'K',
+                 'O': 'cm^-3',
+                 'N2': 'cm^-3',
+                 'O2': 'cm^-3',
+                 'NO': 'cm^-3',
+                 'NeIn': 'cm^-3',
+                 'NeOut': 'cm^-3',
+                 'ionrate': 'cm^-3',
+                 'O+': 'cm^-3',
+                 'O2+': 'cm^-3',
+                 'NO+': 'cm^-3',
+                 'N2D': 'cm^-3',
+                 'pedersen': 'S m^-1',
+                 'hall': 'S m^-1',
+                 'Te': 'K',
+                 'Ti': 'K',
+                 'production': 'cm^-3 s^-1',
+                 'loss': 's^-1',
+                 'excitedDensity': 'cm^-3',
+                 'ver': 'R',
+                 'alt_km': 'km',
+                 'wavelength': 'angstrom',
+                 'energy': 'eV'
+                 }
+
+    description_dict = {'Tn': 'Neutral temperature',
+                 'O': 'Number density',
+                 'N2': 'Number density',
+                 'O2': 'Number density',
+                 'NO': 'Number density',
+                 'NeIn': 'Number density',
+                 'NeOut': 'Number density',
+                 'ionrate': 'Number density',
+                 'O+': 'Number density',
+                 'O2+': 'Number density',
+                 'NO+': 'Number density',
+                 'N2D': 'Number density',
+                 'pedersen': 'Pedersen conductivity',
+                 'hall': 'Hall conductivity',
+                 'Te': 'Electron temperature',
+                 'Ti': 'Ion temperature',
+                 'production': 'Volume production rate',
+                 'loss': 'Loss rate',
+                 'excitedDensity': 'Excited/ionized grid density',
+                 'ver': 'Volume (column) photon emission rate',
+                 'alt_km': 'Altitude grid',
+                 'wavelength': 'Emission wavelength',
+                 'energy': 'Precipitation energy'
+                 }
+    _ = list(map(lambda x: iono[x].attrs.update(
+        {'units': unit_dict[x], 'description': description_dict[x]}), unit_dict.keys()))
+
     return iono
 
 

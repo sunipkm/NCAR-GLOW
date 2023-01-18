@@ -51,6 +51,8 @@ containing outputs from GLOW, including:
 * precipitating flux vs. energy
 * many more, request if you want it.
 
+All available keys carry unit and description.
+
 ## Fortran
 
 You can call this repo from a Meson wrap or CMake Fetch.
@@ -79,4 +81,7 @@ mpirun -np 2 ./mpi_glow.bin < ~/data/in.namelist.tgcm
 
 Note, for an unknown reason, `in.namelist.msis` only works with -O0 or -O1 with gfortran 7. We didn't look into why.
 Otherwise, -O3 works fine.
+
+### MATLAB / GNU Octave
+The routines in `+ncarglow` directory can execute the FORTRAN binary, access the output from `stdout` and parse the output into a structure.
 
