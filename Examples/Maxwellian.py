@@ -18,7 +18,7 @@ Echar = 100e3
 # %% Number of energy bins
 Nbins = 250
 
-iono = glow.maxwellian(time, glat, glon, Q, Echar, Nbins)
+iono = glow.maxwellian(time, glat, glon, Nbins, Q, Echar)
 # %% plots
 plot.precip(iono["precip"])
 plot.ver(iono)

@@ -56,7 +56,7 @@ def get_exe(name: str = "glow.bin") -> Path:
     return Path(exe)
 
 
-def maxwellian(time: datetime, glat: float, glon: float, Q: float, Echar: float, Nbins: int, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def maxwellian(time: datetime, glat: float, glon: float, Nbins: int, Q: float, Echar: float, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model with electron precipitation assuming Maxwellian distribution.
 
     Args:
@@ -449,7 +449,7 @@ def glowparse(raw: str) -> xarray.Dataset:
                  'production': 'cm^-3 s^-1',
                  'loss': 's^-1',
                  'excitedDensity': 'cm^-3',
-                 'ver': 'R',
+                 'ver': 'cm^-3 s^-1',
                  'alt_km': 'km',
                  'wavelength': 'angstrom',
                  'energy': 'eV'
@@ -474,7 +474,7 @@ def glowparse(raw: str) -> xarray.Dataset:
                  'production': 'Volume production rate',
                  'loss': 'Loss rate',
                  'excitedDensity': 'Excited/ionized grid density',
-                 'ver': 'Volume (column) photon emission rate',
+                 'ver': 'Photon volume emission rate',
                  'alt_km': 'Altitude grid',
                  'wavelength': 'Emission wavelength',
                  'energy': 'Precipitation energy'
