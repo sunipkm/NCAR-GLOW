@@ -1,4 +1,4 @@
-import ncarglow as glow
+import glowpython as glow
 
 from pytest import approx
 from datetime import datetime

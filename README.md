@@ -1,42 +1,41 @@
-[![DOI](https://zenodo.org/badge/162534283.svg)](https://zenodo.org/badge/latestdoi/162534283)
-
-[![Actions Status](https://github.com/scivision/NCAR-GLOW/workflows/ci_linux/badge.svg)](https://github.com/scivision/NCAR-GLOW/actions)
-[![Actions Status](https://github.com/scivision/NCAR-GLOW/workflows/ci_macos/badge.svg)](https://github.com/scivision/NCAR-GLOW/actions)
-[![Actions Status](https://github.com/scivision/NCAR-GLOW/workflows/ci_windows/badge.svg)](https://github.com/scivision/NCAR-GLOW/actions)
-
 # GLOW
 
 The GLobal airglOW Model, independently and easily accessed from **Fortran 2003** compiler.
-Optionally available from Python &ge; 3.6.
+Optionally available from Python &ge; 3.7.
 
 A Fortran compiler, as well as the `meson` build system, is REQUIRED.
 
-## Python
+## Installation
 
-Install/compile by:
-
+Direct install using pip:
 ```sh
-git clone https://github.com/sunipkm/ncar-glow
-
-pip install -e ncar-glow
+$ pip install glowpython
 ```
 
-Requires (and installs) `geomagindices` from https://github.com/sunipkm/geomagindices for timezone aware geomagnetic parameters retrieval.
+Install from source repository by:
+
+```sh
+$ git clone https://github.com/sunipkm/glowpython
+$ cd glowpython && pip install .
+```
+
+Requires (and installs) [geomagdata](https://pypi.org/project/geomagdata/) for timezone aware geomagnetic parameters retrieval.
 
 Confirm the install with:
 
 ```sh
-pytest ncar-glow
+pytest glowpython
 ```
 
 Then use examples such as:
 
-* Simple.py:  Maxwellian precipiation, specify Q and E0.
+* Maxwellian.py:  Maxwellian precipiation, specify Q and E0.
 * Monoenergetic.py: Specify unit flux for one energy bin, all other energy bins are zero flux.
+* NoPrecipitation.py: No precipitating electrons.
 
 or use GLOW in your own Python program by:
 ```python
-import ncarglow as glow
+import glowpython as glow
 
 iono = glow.maxwellian(time, glat, glon, Q, Echar, Nbins)
 ```
@@ -82,6 +81,4 @@ mpirun -np 2 ./mpi_glow.bin < ~/data/in.namelist.tgcm
 Note, for an unknown reason, `in.namelist.msis` only works with -O0 or -O1 with gfortran 7. We didn't look into why.
 Otherwise, -O3 works fine.
 
-### MATLAB / GNU Octave
-The routines in `+ncarglow` directory can execute the FORTRAN binary, access the output from `stdout` and parse the output into a structure.
 

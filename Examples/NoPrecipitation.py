@@ -2,8 +2,8 @@
 """
 no particle precipitation
 """
-import ncarglow as glow
-import ncarglow.plots as plot
+import glowpython as glow
+import glowpython.plots as plot
 from datetime import datetime
 from matplotlib.pyplot import show
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import ncarglow as glow
+import glowpython as glow
 from datetime import datetime
-import ncarglow.plots as plot
+import glowpython.plots as plot
 import numpy as np
 from matplotlib.pyplot import show
 
