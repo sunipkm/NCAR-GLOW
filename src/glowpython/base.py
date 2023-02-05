@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Tuple, SupportsFloat as Numeric
+from typing import Iterable, SupportsFloat as Numeric
 import subprocess
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -55,7 +55,7 @@ def get_exe(name: str = "glow.bin") -> Path:
 
     return Path(exe)
 
-def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric = None, Echar: Numeric = None, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric = None, Echar: Numeric = None, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model with optional electron precipitation assuming Maxwellian distribution.
     Defaults to no precipitation.
 
@@ -66,7 +66,7 @@ def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric
         Q (Numeric, optional): Flux of precipitating electrons. Setting to None or < 0.001 makes it equivalent to no-precipitation. Defaults to None.
         Echar (Numeric, optional): Energy of precipitating electrons. Setting to None or < 1 makes it equivalent to no-precipitation. Defaults to None.
         Nbins (int): Number of energy bins.
-        geomag_params (dict | List[float] | Tuple[float], optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
+        geomag_params (dict | Iterable, optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
         tzaware (bool, optional): If time is time zone aware. If true, `time` is recast to 'UTC' using `time.astimezone(pytz.utc)`.
 
     Raises:
@@ -98,13 +98,19 @@ def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric
         f107 = str(geomag_params['f107'])
         f107p = str(geomag_params['f107p'])
         ap = str(geomag_params['Ap'])
-    elif isinstance(geomag_params, List[float]) or isinstance(geomag_params, Tuple[float]):
+    elif isinstance(geomag_params, Iterable):
         f107a = str(geomag_params[0])
         f107 = str(geomag_params[1])
         f107p = str(geomag_params[2])
         ap = str(geomag_params[3])
     else:
         raise RuntimeError('Invalid type %s for geomag params %s' % (str(type(geomag_params), str(geomag_params))))
+    
+    ip = {}
+    ip['f107a'] = float(f107a)
+    ip['f107'] = float(f107)
+    ip['f107p'] = float(f107p)
+    ip['ap'] = float(ap)
 
     cmd = [
         str(get_exe()),
@@ -124,7 +130,7 @@ def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric
 
     return glowread(dat, time, ip, glat, glon)
 
-def maxwellian(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric, Echar: Numeric, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def maxwellian(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric, Echar: Numeric, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model with electron precipitation assuming Maxwellian distribution.
 
     Args:
@@ -134,7 +140,7 @@ def maxwellian(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Nume
         Q (Numeric): Flux of precipitating electrons.
         Echar (Numeric): Energy of precipitating electrons.
         Nbins (int): Number of energy bins.
-        geomag_params (dict | List[float] | Tuple[float], optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
+        geomag_params (dict | Iterable, optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
         tzaware (bool, optional): If time is time zone aware. If true, `time` is recast to 'UTC' using `time.astimezone(pytz.utc)`.
 
     Raises:
@@ -148,7 +154,7 @@ def maxwellian(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Nume
     return generic(time, glat, glon, Nbins, Q, Echar, geomag_params=geomag_params, tzaware=tzaware)
 
 
-def no_precipitation(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def no_precipitation(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model without electron precipitation.
 
     Args:
@@ -156,7 +162,7 @@ def no_precipitation(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, *
         glat (Numeric): Location latitude.
         glon (Numeric): Location longitude.
         Nbins (int): Number of energy bins.
-        geomag_params (dict | List[float] | Tuple[float], optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
+        geomag_params (dict | Iterable, optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
         tzaware (bool, optional): If time is time zone aware. If true, `time` is recast to 'UTC' using `time.astimezone(pytz.utc)`.
 
     Raises:
@@ -170,7 +176,7 @@ def no_precipitation(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, *
     return generic(time, glat, glon, Nbins, Q=None, Echar=None, geomag_params=geomag_params, tzaware=tzaware)
 
 
-def no_source(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Talt: Numeric, Thot: Numeric, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def no_source(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Talt: Numeric, Thot: Numeric, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model without excitation source. Warning: for testing only, may give unphysical results.
 
     Args:
@@ -180,7 +186,7 @@ def no_source(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Talt: Nu
         Nbins (int): Number of energy bins.
         Talt (Numeric): Altitude of max temperature (?)
         Thot (Numeric): Max temperature (?)
-        geomag_params (dict | List[float] | Tuple[float], optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
+        geomag_params (dict | Iterable, optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
         tzaware (bool, optional): If time is time zone aware. If true, `time` is recast to 'UTC' using `time.astimezone(pytz.utc)`.
 
     Raises:
@@ -207,14 +213,20 @@ def no_source(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Talt: Nu
         f107 = str(geomag_params['f107'])
         f107p = str(geomag_params['f107p'])
         ap = str(geomag_params['Ap'])
-    elif isinstance(geomag_params, List[float]) or isinstance(geomag_params, Tuple[float]):
+    elif isinstance(geomag_params, Iterable):
         f107a = str(geomag_params[0])
         f107 = str(geomag_params[1])
         f107p = str(geomag_params[2])
         ap = str(geomag_params[3])
     else:
         raise RuntimeError('Invalid type %s for geomag params %s' % (str(type(geomag_params), str(geomag_params))))
-
+    
+    ip = {}
+    ip['f107a'] = float(f107a)
+    ip['f107'] = float(f107)
+    ip['f107p'] = float(f107p)
+    ip['ap'] = float(ap)
+    
     cmd = [
         str(get_exe()),
         idate,
@@ -236,7 +248,7 @@ def no_source(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Talt: Nu
     return glowread(dat, time, ip, glat, glon)
 
 
-def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phitop: np.ndarray, *, geomag_params: dict | List[float] | Tuple[float] = None, tzaware: bool = False) -> xarray.Dataset:
+def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phitop: np.ndarray, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model with electron precipitation using custom distribution.
 
     Args:
@@ -245,7 +257,7 @@ def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phito
         glon (Numeric): Location longitude.
         Ebins (np.ndarray): Energy bins.
         Phitop (np.ndarray): Particle flux for the bins.
-        geomag_params (dict | List[float] | Tuple[float], optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
+        geomag_params (dict | Iterable, optional): Custom geomagnetic parameters 'f107a' (average f10.7 over 81 days), 'f107' (current day f10.7), 'f107p' (previous day f10.7) and 'Ap' (the global 3 hour ap index). Must be present in this order for list or tuple, and use these keys for the dictionary. Defaults to None.
         tzaware (bool, optional): If time is time zone aware. If true, `time` is recast to 'UTC' using `time.astimezone(pytz.utc)`.
 
     Raises:
@@ -285,14 +297,20 @@ def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phito
         f107 = str(geomag_params['f107'])
         f107p = str(geomag_params['f107p'])
         ap = str(geomag_params['Ap'])
-    elif isinstance(geomag_params, List[float]) or isinstance(geomag_params, Tuple[float]):
+    elif isinstance(geomag_params, Iterable):
         f107a = str(geomag_params[0])
         f107 = str(geomag_params[1])
         f107p = str(geomag_params[2])
         ap = str(geomag_params[3])
     else:
         raise RuntimeError('Invalid type %s for geomag params %s' % (str(type(geomag_params), str(geomag_params))))
-
+    
+    ip = {}
+    ip['f107a'] = float(f107a)
+    ip['f107'] = float(f107)
+    ip['f107p'] = float(f107p)
+    ip['ap'] = float(ap)
+    
     cmd = [
         str(get_exe()),
         idate,
@@ -321,9 +339,7 @@ def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phito
     return glowread(ret.stdout, time, ip, glat, glon)
 
 
-def glowread(
-    raw: str, time: datetime, ip: pandas.DataFrame, glat: Numeric, glon: Numeric
-) -> xarray.Dataset:
+def glowread(raw: str, time: datetime, ip: dict, glat: Numeric, glon: Numeric) -> xarray.Dataset:
 
     iono = glowparse(raw)
     iono.attrs["geomag_params"] = ip
