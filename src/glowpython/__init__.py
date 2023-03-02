@@ -20,6 +20,6 @@ Attributes
 
 from .base import generic, maxwellian, ebins, no_precipitation, no_source
 
-__version__ = '2.0.1'
+__version__ = '2.0.2'
 
 __all__ = ['generic', 'maxwellian', 'no_precipitation', 'ebins', 'no_source']

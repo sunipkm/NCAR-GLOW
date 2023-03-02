@@ -128,7 +128,7 @@ def generic(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric
 
     dat = subprocess.check_output(cmd, timeout=15, stderr=subprocess.DEVNULL, text=True)
 
-    return glowread(dat, time, ip, glat, glon)
+    return glowread(dat, time, ip, glat, glon, Q, Echar)
 
 def maxwellian(time: datetime, glat: Numeric, glon: Numeric, Nbins: int, Q: Numeric, Echar: Numeric, *, geomag_params: dict | Iterable = None, tzaware: bool = False) -> xarray.Dataset:
     """GLOW model with electron precipitation assuming Maxwellian distribution.
@@ -339,10 +339,12 @@ def ebins(time: datetime, glat: Numeric, glon: Numeric, Ebins: np.ndarray, Phito
     return glowread(ret.stdout, time, ip, glat, glon)
 
 
-def glowread(raw: str, time: datetime, ip: dict, glat: Numeric, glon: Numeric) -> xarray.Dataset:
+def glowread(raw: str, time: datetime, ip: dict, glat: Numeric, glon: Numeric, Q: Numeric = None, Echar: Numeric = None) -> xarray.Dataset:
 
     iono = glowparse(raw)
     iono.attrs["geomag_params"] = ip
+    if Q is not None and Echar is not None:
+        iono.attrs['precip'] = {'Q': Q, 'Echar': Echar}
     iono.attrs["time"] = time.isoformat()
     iono.attrs["glatlon"] = (glat, glon)
 
