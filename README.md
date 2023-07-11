@@ -3,7 +3,7 @@
 The GLobal airglOW Model, independently and easily accessed from **Fortran 2003** compiler.
 Optionally available from Python &ge; 3.7.
 
-A Fortran compiler, as well as the `meson` build system, is REQUIRED.
+A Fortran compiler is REQUIRED.
 
 ## Installation
 
@@ -15,17 +15,11 @@ $ pip install glowpython
 Install from source repository by:
 
 ```sh
-$ git clone https://github.com/sunipkm/glowpython
+$ git clone https://github.com/sunipkm/glowpython --recurse-submodules
 $ cd glowpython && pip install .
 ```
 
 Requires (and installs) [geomagdata](https://pypi.org/project/geomagdata/) for timezone aware geomagnetic parameters retrieval.
-
-Confirm the install with:
-
-```sh
-pytest glowpython
-```
 
 Then use examples such as:
 
@@ -52,33 +46,5 @@ containing outputs from GLOW, including:
 
 All available keys carry unit and description.
 
-## Fortran
-
-You can call this repo from a Meson wrap or CMake Fetch.
-To build Fortran code by itself, do either:
-
-```sh
-meson build
-
-meson test -C build
-```
-
-or
-
-```sh
-cmake -B build
-
-cmake --build build
-```
-
-### MPI / NetCDF
-
-The parallel version of GLOW requires MPI and NetCDF for TIEGCM I/O.
-```sh
-mpirun -np 2 ./mpi_glow.bin < ~/data/in.namelist.tgcm
-```
-
-Note, for an unknown reason, `in.namelist.msis` only works with -O0 or -O1 with gfortran 7. We didn't look into why.
-Otherwise, -O3 works fine.
 
 

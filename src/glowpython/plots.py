@@ -83,6 +83,9 @@ def ver(iono: xarray.Dataset):
     )
     axs[0].set_ylabel("altitude [km]")
     axs[0].set_xlabel("Volume Emission Rate [Rayleigh]")
+    axs[0].set_xlim(1e-3, None)
+    axs[1].set_xlim(1e-3, None)
+    axs[2].set_xlim(1e-3, None)
 
 
 def ver_group(iono: xarray.DataArray, ttxt: str, ax):

@@ -1,25 +1,6 @@
-"""A python wrapper around the GLobal airglOW (GLOW) model.
-GLOW model originally developed by Stanley Solomon et. al.
+from .base import init_cglow, reset_cglow, runglow, generic, no_precipitation, maxwellian, exec_glow
+from .fortran import cglow, maxt, mzgrid, glow, wrap_egrid, conduct
+from .version import __version__
 
-NCAR-GLOW originally developed by Michael Hirsch, PhD.
+__all__ = ['init_cglow', 'reset_cglow', 'runglow', 'generic', 'no_precipitation', 'maxwellian', 'exec_glow', 'cglow', 'maxt', 'mzgrid', 'glow', 'wrap_egrid', 'conduct', '__version__']
 
-This version is maintained by Sunip K. Mukherjee.
-
-Functions
----------
-- generic(): Provides uniform calling convention across maxwellian precipitation and no precipitation models.
-- maxwellian(): Calculate GLOW model with electron precipitation following Maxwell distribution.
-- no_precipitation(): Calculate GLOW model without electron precipitation.
-- ebins(): Calculate GLOW model with electron precipitation following custom distribution.
-- no_source(): Calculate GLOW model without a source. May give unphysical results, for testing purposes only.
-
-Attributes
-----------
-- __version__: Reports the version of the package.
-"""
-
-from .base import generic, maxwellian, ebins, no_precipitation, no_source
-
-__version__ = '2.0.2'
-
-__all__ = ['generic', 'maxwellian', 'no_precipitation', 'ebins', 'no_source']
