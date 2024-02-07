@@ -116,16 +116,30 @@
 ! NC      number of component production terms for each emission
 
 
-    subroutine glow
+    subroutine glow(jmax,lmax,nst,nmaj,nbins,iscale,nei,ierr,idate, &
+      glat,glong,ut,f107,f107a,dip,sza,xuvfac,efrac, &
+      phitop, &
+      sflux,wave1,wave2,sf_rflux,sf_scale1,sf_scale2, &
+      zmaj,zcol,pia,sion, &
+      zo,zo2,zn2,zz,ztn,eheat,tez,zno, &
+      photoi,photod,phono, &
+      pespec,sespec,uflx,dflx, &
+      aglw)
 
-      use cglow,only: jmax,lmax,nw,nst,nmaj,nbins,iscale,nei,ierr, &
-                      glat,glong,idate,ut,f107,f107a, &
-                      ener,edel,dip,sza,xuvfac, &
-                      wave1,wave2,sflux,zmaj,zo,zo2,zn2,zz,ztn,zcol, &
-                      photoi,photod, phono,pespec,pia,sespec,phitop, &
-                      uflx,dflx,sion,aglw,eheat,tez, efrac,zno
+      use, intrinsic :: iso_fortran_env, only: wp => real32
 
       implicit none
+
+      integer,intent(in)::jmax,lmax,nst,nmaj,nbins,iscale,nei,ierr,idate
+      real::glat,glong,ut,f107,f107a,dip,sza,xuvfac,efrac
+      real(wp),dimension(nbins),intent(inout)::phitop
+      real,dimension(lmax),intent(inout)::sflux
+      real,dimension(nmaj,jmax),intent(inout)::zmaj,zcol,pia,sion
+      real,dimension(jmax),intent(inout)::zo,zo2,zn2,zz,ztn,eheat,tez,zno
+      real,dimension(nst,nmaj,jmax),intent(inout)::photoi,photod
+      real,dimension(nst,jmax),intent(inout)::phono
+      real,dimension(nbins,jmax),intent(inout)::pespec,sespec,uflx,dflx
+      real,dimension(nei,nmaj,jmax),intent(inout)::aglw
 
       real :: zvcd(nmaj,jmax),xf,yf,zf,ff,dec,sdip,teflux
 
@@ -151,7 +165,8 @@
 
 ! Scale solar flux:
 
-      call ssflux (iscale, f107, f107a, xuvfac, sflux)
+      call ssflux (iscale,f107,f107a,xuvfac,sflux, &
+      lmax,wave1,wave2,sf_rflux,sf_scale1,sf_scale2)
 
 ! Pack major species density array:
 

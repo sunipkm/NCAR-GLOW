@@ -106,14 +106,15 @@
 ! A        scaling factor for EUVAC model
 
 
-subroutine ssflux_init (iscale)
+subroutine ssflux_init (iscale,lmax,data_dir,wave1,wave2,sf_rflux,sf_scale1,sf_scale2)
 
-use cglow,only: lmax,data_dir,wave1,wave2,sf_rflux,sf_scale1,sf_scale2
 
 implicit none
 save
 
-integer,intent(in) :: iscale
+integer,intent(in) :: iscale,lmax
+character(1024),intent(in)::data_dir
+real,dimension(lmax),intent(inout)::wave1,wave2,sf_rflux,sf_scale1,sf_scale2
 
 integer :: l, islast, u
 character(:), allocatable :: filepath

@@ -1,7 +1,11 @@
-subroutine snoem_init
-    use cglow, only: data_dir, snoem_zin, snoem_mlatin, snoem_no_mean, snoem_eofs
-    
+subroutine snoem_init(data_dir, snoem_zin, snoem_mlatin, snoem_no_mean, snoem_eofs)    
     implicit none
+
+    character(1024)::data_dir
+    real,dimension(16),intent(out)::snoem_zin
+    real,dimension(33),intent(out)::snoem_mlatin
+    real,dimension(33,16),intent(out)::snoem_no_mean
+    real,dimension(33,16,3),intent(out)::snoem_eofs
 
     character(len=1024) :: filepath
     integer :: j,k,n

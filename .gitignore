@@ -7,6 +7,7 @@ bin/
 build/
 builldir/
 dist/
+build.log
 **/.DS_Store
 # should not require vscode persistent settings
 **/.vscode
@@ -31,3 +32,4 @@ dist/
 
 # Others
 *.txt
+

@@ -49,14 +49,19 @@ C NMAJ   number of major species
 C NEI    number of slots for excited and ionized states
 C
 C
-      SUBROUTINE EXSECT (ENER, EDEL, NBINS)
-C
-      use cglow,only: NMAJ,NEI
-      use cglow,only: WW,AO,OMEG,ANU,BB,AUTO,THI,AK,AJ,TS,TA,TB,GAMS, ! /CXPARS/
-     |                GAMB
-      use cglow,only: SIGS,PE,PIN,SIGEX,SIGIX,SIGA,SEC,SIGA,IIMAXX    ! /CXSECT/
+      SUBROUTINE EXSECT (NBINS,NEI,NMAJ,ENER,EDEL,
+     |  ww,ao,omeg,anu,bb,auto,thi,ak,aj,ts,ta,tb,gams,gamb,
+     |  sigs,pe,pin,sigex,sigix,siga,sec,iimaxx)
 C
       implicit none
+C
+      integer,intent(in) :: nmaj,nei
+      real,dimension(nei,nmaj),intent(inout)::ww,ao,omeg,anu,bb,auto,thi
+     | ,ak,aj,ts,ta,tb,gams,gamb
+      real,dimension(nmaj,nbins),intent(inout)::sigs,pe,pin
+      real,dimension(nei,nmaj,nbins),intent(inout)::sigex,sigix
+      real,dimension(nei,nbins,nbins),intent(inout)::siga,sec
+      integer,dimension(nbins),intent(inout)::iimaxx
 C
       integer,intent(in) :: NBINS
       real,intent(in) :: ENER(NBINS), EDEL(NBINS)
@@ -343,7 +348,7 @@ C
 C
 C Obtain high-energy correction factors:
 C
-      CALL HEXC(ENER,SIGIX,RATIO,NBINS)
+      CALL HEXC(ENER,SIGIX,RATIO,NBINS,NEI,NMAJ)
       DO 142 J=1,NBINS
         DO 142 I=1,NMAJ
           DO 142 K=1,NEI
@@ -456,7 +461,8 @@ C
         E1 = ENER(II) - EDEL(II) / 2.
         E2 = E1 + EDEL(II)
         IF (E2 .GT. TMAX) E2 = TMAX
-        IF(E1 .LE. E2)SIGI(II)=SIGION(I,ML,ETJ,E1,E2,T12(II))/RATIO(JY)
+        IF(E1 .LE. E2)SIGI(II)=SIGION(I,ML,ETJ,E1,E2,T12(II),
+     |NEI,NMAJ,THI,AK,AJ,TS,TA,TB,GAMS,GAMB)/RATIO(JY)
   220   CONTINUE
       ENDIF
 C
@@ -510,10 +516,13 @@ C
 C Function SIGION calculates ionization cross section for species I,
 C state ML, primary energy E, secondary energy from E1 to E2 
 C
-      real FUNCTION SIGION(I,ML,E,E1,E2,T12)
-      use cglow,only: THI,AK,AJ,TS,TA,TB,GAMS,GAMB ! /CXPARS/
+      real FUNCTION SIGION(I,ML,E,E1,E2,T12,
+     > NEI,NMAJ,THI,AK,AJ,TS,TA,TB,GAMS,GAMB)
       implicit none
 C
+      integer,intent(in) :: NEI,NMAJ
+      real,dimension(nei,nmaj)::thi,ak,aj,ts,ta,tb,gams,gamb
+
       integer,intent(in) :: i,ml
       real,intent(in) :: E,E1
       real,intent(out) :: T12
@@ -604,11 +613,10 @@ C   Rieke and Prepejchal, Phys. Rev. A, 6, 1507, 1990.
 C   Saksena et al., Int. Jour. of Mass Spec. & Ion Proc., 171, L1, 1997.
 
 
-      SUBROUTINE HEXC(ENER,SIGIX,RATIO,NBINS)
-      use cglow,only: NEI,NMAJ
+      SUBROUTINE HEXC(ENER,SIGIX,RATIO,NBINS,NEI,NMAJ)
       implicit none
 C
-      integer,intent(in) :: NBINS
+      integer,intent(in) :: NBINS,NEI,NMAJ
       real,intent(in) :: ENER(NBINS),SIGIX(NEI,NMAJ,NBINS)
       real,intent(out) :: RATIO(NBINS)
 C

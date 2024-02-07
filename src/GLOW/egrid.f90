@@ -19,7 +19,7 @@ subroutine egrid (ener, edel, nbins)
   implicit none
 
   integer,intent(in) :: nbins
-  real,intent(out) :: ener(nbins), edel(nbins)
+  real,intent(inout) :: ener(nbins), edel(nbins)
 
   integer :: n
 

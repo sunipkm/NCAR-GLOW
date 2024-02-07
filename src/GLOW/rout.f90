@@ -13,19 +13,27 @@
 ! Changed 1356, 1304, and LBH to use volume emission rate arrays, SCS, 12/2016
 
 
-    SUBROUTINE ROUT(ROFILE,LUN,EF,EZ,ITAIL,FRACO,FRACO2,FRACN2)
+    SUBROUTINE ROUT(ROFILE,LUN,EF,EZ,ITAIL,FRACO,FRACO2,FRACN2, &
+      JMAX,NEI,NMAJ,NEX,NW,&
+      IDATE,UT,GLAT,GLONG,F107,F107P,F107A,SZA,DIP,XUVFAC, &
+      ZZ,ZTN,ZTI,ZTE,ZO,ZO2,ZNS,ZN2,ECALC,AGLW,ZXDEN,ZETA)
 
-      use cglow,only: jmax,idate
-      use cglow,only: ut,glat,glong,f107,f107p,f107a
-      use cglow,only: zz,aglw,sza,dip,xuvfac,ztn,zti,zte,zo,zo2,zns,zn2,ecalc,zxden,zeta
+      use, intrinsic :: iso_fortran_env, only: wp => real32
 
       implicit none
+
+      integer,intent(in)::jmax,idate,nei,nmaj,nex,nw
+      real,intent(in)::ut,glat,glong,f107,f107p,f107a,sza,dip,xuvfac
+      real,dimension(jmax),intent(inout)::zz,ztn,zti,zte,zo,zo2,zns,zn2,ecalc
+      real,dimension(nei,nmaj,jmax),intent(inout)::aglw
+      real,dimension(nex,jmax),intent(inout)::zxden
+      real(wp),dimension(nw,jmax),intent(inout)::zeta
 
       integer,intent(in) :: lun,itail
       real,intent(in) :: ef,ez,fraco,fraco2,fracn2
       character(len=40),intent(in) :: rofile
 
-      real :: z(jmax), zhe(jmax), e1356(jmax), e1304(jmax), e1027(jmax), e989(jmax), elbh(jmax)
+      real,dimension(jmax)::z,zhe,e1356,e1304,e1027,e989,elbh
       integer :: j
 
       do j=1,jmax

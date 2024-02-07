@@ -56,27 +56,46 @@
 ! nei     number of states produced by electron impact
 
 
-  subroutine etrans
+  subroutine etrans(nmaj,nbins,jmax,nei,ierr,jlocal, &
+    dip,efrac, &
+    ener,edel,phitop, &
+    aglw, &
+    eheat,zz,zte,ze,tez, &
+    sion,zmaj, &
+    pespec,sespec,uflx,dflx, &
+    siga,sec, &
+    sigs,pe,pin, &
+    sigex,iimaxx, &
+    ww)
 
-    use cglow,only: nmaj,nbins,jmax,nei,ierr,jlocal, &
-                    dip,ener,edel,aglw,eheat,sion,phitop,zz,pespec, &
-                    sespec,zte,ze,zmaj,uflx,dflx,tez,efrac           ! formerly /cglow/
-    use cglow,only: siga,sigs,pe,sigex,sec,iimaxx,pin                ! formerly /cxsect/
-    use cglow,only: ww                                               ! formerly /cxpars/
-
+    use, intrinsic :: iso_fortran_env, only: wp=>real32
+    
     implicit none
+
+    integer::nmaj,nbins,jmax,nei,ierr,jlocal
+    real::dip,efrac
+    real(wp),dimension(nbins)::ener,edel,phitop
+    real,dimension(nei,nmaj,jmax)::aglw
+    real,dimension(jmax)::eheat,zz,zte,ze,tez
+    real,dimension(nmaj,jmax)::sion,zmaj
+    real,dimension(nbins,jmax)::pespec,sespec,uflx,dflx
+    real,dimension(nei,nbins,nbins)::siga,sec
+    real,dimension(nmaj,nbins)::sigs,pe,pin
+    real,dimension(nei,nmaj,nbins)::sigex
+    integer,dimension(nbins)::iimaxx
+    real,dimension(nei,nmaj)::ww
 
     integer,save :: ifirst=1
     integer :: ii,ib,ibb,i,n,jj,j,k,jjj4,iv,ll,kk,im,iq
-    real :: prod(jmax), eprod(jmax), t1(jmax), t2(jmax), tsa(nmaj), &
-            produp(jmax,nbins), prodwn(jmax,nbins), &
-            phiup(jmax), phidwn(jmax), tsigne(jmax), taue(jmax), &
-            secion(jmax), secp(nmaj,jmax), r1(jmax), expt2(jmax), &
-            produa(jmax), prodda(jmax), phiinf(nbins), potion(nmaj), &
-            alpha(jmax),beta(jmax),gamma(jmax),psi(jmax),del2(jmax), &
-            delp(jmax),delm(jmax),dels(jmax),den(jmax), &
-            delz(jmax),dela(jmax)
-    real :: sindip,rmusin,phiout,dag,et,eet,fluxj,edep,epe,ephi,aprod,ein,eout,fac
+    real,dimension(jmax)::prod,eprod,t1,t2,phiup,phidwn,tsigne,taue, &
+    secion,r1,expt2,produa,prodda,alpha,beta,gamma,psi,del2,delp,delm, &
+    dels,den,delz,dela
+    real,dimension(nmaj)::tsa,potion
+    real,dimension(jmax,nbins)::produp,prodwn
+    real,dimension(nmaj,jmax)::secp
+    real,dimension(nbins)::phiinf
+    real :: sindip,rmusin,phiout,dag,et,eet,fluxj,edep,epe,ephi,aprod, &
+    ein,eout,fac
     real,parameter :: avmu=0.5
 
 

@@ -20,12 +20,17 @@
 !   ZNO    Nitric oxide density at Z in cm-3
 
 
-    subroutine snoemint(idate,glat,glong,f107,ap,jmax,z,ztn,zno)
+    subroutine snoemint(idate,glat,glong,f107,ap,jmax,z,ztn,zno, &
+      snoem_zin, snoem_mlatin, snoem_no_mean, snoem_eofs)
 
       implicit none
 
       integer,intent(in) :: idate, jmax
       real,intent(in) :: glat, glong, f107, ap, z(jmax), ztn(jmax)
+      real,dimension(16),intent(in)::snoem_zin
+      real,dimension(33),intent(in)::snoem_mlatin
+      real,dimension(33,16),intent(in)::snoem_no_mean
+      real,dimension(33,16,3),intent(in)::snoem_eofs
       real,intent(out) :: zno(jmax)
 
       real,parameter :: pi=3.1415926536
@@ -43,7 +48,8 @@
       iday=idate-idate/1000*1000
       xkp=1.75*alog(0.4*ap)
       if (xkp < 0.0) xkp=0.0
-      call snoem(iday,xkp,f107,zg,xmlatno,zmno)
+      call snoem(iday,xkp,f107,zg,xmlatno,zmno,snoem_zin, &
+      snoem_mlatin,snoem_no_mean, snoem_eofs)
  
 ! Interpolate altitude profile at magnetic latitude:
  

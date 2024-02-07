@@ -66,14 +66,24 @@
 ! NST     number of states produced by photoionization/dissociation
 
 
-subroutine ephoto_init
+subroutine ephoto_init(lmax,nmaj,nst, &
+                       wave1,wave2, &
+                       epsil1,epsil2,ephoto_prob, &
+                       sigion,sigabs, &
+                       data_dir)
 
-  use cglow,only: nbins,lmax,nmaj,nst
-  use cglow,only: wave1,wave2,epsil1,epsil2,sigion,sigabs,ephoto_prob
-  use cglow,only: data_dir
+  ! use cglow,only: nbins,lmax,nmaj,nst
+  ! use cglow,only: wave1,wave2,epsil1,epsil2,sigion,sigabs,ephoto_prob
+  ! use cglow,only: data_dir
 
   implicit none
   save
+
+  integer:: lmax,nmaj,nst
+  real,dimension(lmax):: wave1,wave2
+  real,dimension(nst,nmaj,lmax):: epsil1, epsil2, ephoto_prob
+  real,dimension (nmaj,lmax)   :: sigion, sigabs    
+  character(len=1024) :: data_dir    
 
   integer :: nnn(nmaj)
   real ::   tpot(nst,nmaj), &

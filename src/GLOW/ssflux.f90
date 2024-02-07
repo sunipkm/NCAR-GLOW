@@ -106,16 +106,17 @@
 ! A        scaling factor for EUVAC model
 
 
-subroutine ssflux (iscale,f107,f107a,xuvfac,sflux)
+subroutine ssflux (iscale,f107,f107a,xuvfac,sflux, &
+  lmax,wave1,wave2,sf_rflux,sf_scale1,sf_scale2)
 
-use cglow,only: lmax,wave1,wave2,sf_rflux,sf_scale1,sf_scale2
 
 implicit none
 save
 
-integer,intent(in) :: iscale
+integer,intent(in) :: iscale,lmax
 real,intent(in) :: f107, f107a, xuvfac
 real,intent(out) :: sflux(lmax)
+real,dimension(lmax),intent(in)::wave1,wave2,sf_rflux,sf_scale1,sf_scale2
 
 integer :: l, islast
 real :: b1(3), b2(3), epsil

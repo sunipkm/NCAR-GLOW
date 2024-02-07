@@ -33,7 +33,7 @@
 ! 4 = electron density supplied above 200 km; electron density below
 !     200 km is calculated, everything else calculated at all altitudes.
 !     Electron density for the next two levels above J200 is log interpolated
-!     between E(J200) and E(J200+3).
+!     between ecalc(J200) and ecalc(J200+3).
 
 ! For definitions of use-associated variables see subroutine GLOW and module CGLOW.
 
@@ -54,8 +54,8 @@
 ! TIR      Total ionization rate; cm-3 s-1
 ! RN2ED    N2 electron impact dissociation rate; cm-3s-1
 ! SRCED    O2     "      "         "         " (SR continuum); cm-3s-1
-! P        Volume production rate for each species, altitude; cm-3s-1
-! L        Loss rate for each species, altitude; s-1
+! production        Volume production rate for each species, altitude; cm-3s-1
+! loss        Loss rate for each species, altitude; s-1
 ! OMINUS   O- density for mutual neutralization contribution to O*
 ! T1       Effective temperature divided by 300 for O+ + N2; K
 ! T2          "          "        "                 O+ + O2; K
@@ -63,7 +63,7 @@
 ! T4          "          "        "                 N2+ + O2; K
 ! T5          "          "        "                 O+ + NO; K
 ! QQ, RR, SS, TT, UU, VV, WW, XX:  Combined terms for calculation of
-!                              O+(4S) given e
+!                              O+(4S) given ecalc
 
 ! Array dimensions:
 ! JMAX    number of altitude levels
@@ -84,25 +84,25 @@
 !      k4  N2+ + O2                McFarland et al, 1973
 !      k5  N(2D) + O2              Lin & Kaufman, 1971, cf. Piper et al, 1987
 !      k6  N(2D) + O               Fell et al., 1990
-!      k7  N(2D) + e               Frederick & Rusch, 1977; Queffelec et al, 1985
+!      k7  N(2D) + ecalc               Frederick & Rusch, 1977; Queffelec et al, 1985
 !      k8  O(1D) + N2              Streit et al, 1976
 !      k9  O(1D) + O2              Streit et al, 1976
-!      k10 O(1D) + e               Link, 1982
+!      k10 O(1D) + ecalc               Link, 1982
 !      k11 O(1S) + O               Slanger & Black, 1981
 !      k12 O+(2D) + N2             Johnsen & Biondi, 1980
 !      k13 O+(2D) + O2             Johnsen & Biondi, 1980
-!      k14 O+(2D) + e              Henry et al., 1969
+!      k14 O+(2D) + ecalc              Henry et al., 1969
 !      k15 O+(2D) + O              Torr & Torr, 1980
 !      k16 O+(2P) + N2             Rusch et al, 1977
 !      k17 O+(2P) + O2             Link, 1982
-!      k18 O+(2P) + e              Henry et al., 1969
+!      k18 O+(2P) + ecalc              Henry et al., 1969
 !      k19 O+(2P) + O              Rusch et al, 1977
 !      k20 O2(c) + O               Solheim & Llewellyn, 1979
 !      k21 O2(c) + N2              Solheim & Llewellyn, 1979
-!      k22 NO+ + e                 Walls & Dunn, 1974; Torr et al, 1977; Alge et al, 1983;
+!      k22 NO+ + ecalc                 Walls & Dunn, 1974; Torr et al, 1977; Alge et al, 1983;
 !                                  Dulaney et al,1987; Davidson & Hobson, 1987
-!      k23 N2+ + e                 Mehr & Biondi, 1969
-!      k24 O2+ + e                 Mehr & Biondi; Walls & Dunn; Torr et al; Alge et al, 1983
+!      k23 N2+ + ecalc                 Mehr & Biondi, 1969
+!      k24 O2+ + ecalc                 Mehr & Biondi; Walls & Dunn; Torr et al; Alge et al, 1983
 !      k25 N+ + O2                 Langford et al, 1985
 !      k26 N2(A) + O               Piper et al, 1981b (av. v=1,2)
 !      k27 O(1D) + O               Abreu et al, 1986; Yee, pc, 1991
@@ -120,11 +120,11 @@
 !      k38 O+ + N(2D)              Bates, 1989 (PSS 37, 363)
 !      k39 N2+ + O -> N2 + O+      Torr, 1985; Torr et al, 1988; Knutsen et al, 1988
 !      k40 O+ + NO                 St. Maurice & Torr, 1978
-!      k41 O+ + e -> 7774, 1356    Melendez, 1999; Qin, 2015 (cf. Tinsley 1973; Julienne, 1974)
-!      k42 O + e -> O-             Melendez, 1999; Qin, 2015 (cf. Tinsley 1973)
+!      k41 O+ + ecalc -> 7774, 1356    Melendez, 1999; Qin, 2015 (cf. Tinsley 1973; Julienne, 1974)
+!      k42 O + ecalc -> O-             Melendez, 1999; Qin, 2015 (cf. Tinsley 1973)
 !      k43 O- + O+ -> O* + O       Melendez, 1999; Qin, 2015 (cf. Tinsley 1973)
-!      k44 O- + O+ -> O2 + e       Melendez, 1999; Qin, 2015 (cf. Tinsley 1973)
-!      k45 O+ + e -> 8446, 1304    Estimate from Tinsley, 1973; Julienne, 1974)
+!      k44 O- + O+ -> O2 + ecalc       Melendez, 1999; Qin, 2015 (cf. Tinsley 1973)
+!      k45 O+ + ecalc -> 8446, 1304    Estimate from Tinsley, 1973; Julienne, 1974)
 !      A1  5200       N(4S-2D)     Wiese et al, 1966
 !      A2  6300       O(3P-1D)     Baluja and Zeippen, 1988
 !      A3  6364       O(3P-1D)     Baluja and Zeippen, 1988
@@ -137,21 +137,21 @@
 !      A10 (Veg-Kap)  N2(X-A)      Shemansky, 1969
 !      A11 3466       N(4S-2P)     Chamberlain, 1961
 !      A12 10400      N(2D-2P)     Chamberlain, 1961
-!      B1  O(1S) from O2+ + e      Yee et al, 1988
-!      B2  O(1D) from O2+ + e      Abreu et al, 1986
-!      B3  N(2D) from NO+ + e      Kley et al, 1976
-!      B4  N(2D) from N2+ + e      Queffelec et al, 1985
+!      B1  O(1S) from O2+ + ecalc      Yee et al, 1988
+!      B2  O(1D) from O2+ + ecalc      Abreu et al, 1986
+!      B3  N(2D) from NO+ + ecalc      Kley et al, 1976
+!      B4  N(2D) from N2+ + ecalc      Queffelec et al, 1985
 !      B5  N(2D) from N2+ + O      Frederick & Rusch, 1977
 !      B6  O(1D) from N(2D) + O2   Link, 1983; Langford et al, 1985
 !      B7  O(1D) from O+(2D) + O   ?
-!      B8  O+(2D) from O+(2P) + e  Link, 1982
-!      B9  O+(2P) from O + e*      Gerard & Rusch, 1979; Jones, 1975
-!      B10 O+(2D) from O + e*      Gerard & Rusch, 1979; Jones, 1975
-!      B11 O+(4S) from O + e*      Gerard & Rusch, 1979; Jones, 1975
-!      B12 O+(2P) from O2 + e*     Link, 1982; guess of .3/3
-!      B13 O+(2D) from O2 + e*     Link, 1982; guess of .3/3
-!      B14 O+(4S) from O2 + e*     Link, 1982; guess of .3/3
-!      B15 N+ from N2 + e*         Richards & Torr, 1985
+!      B8  O+(2D) from O+(2P) + ecalc  Link, 1982
+!      B9  O+(2P) from O + ecalc*      Gerard & Rusch, 1979; Jones, 1975
+!      B10 O+(2D) from O + ecalc*      Gerard & Rusch, 1979; Jones, 1975
+!      B11 O+(4S) from O + ecalc*      Gerard & Rusch, 1979; Jones, 1975
+!      B12 O+(2P) from O2 + ecalc*     Link, 1982; guess of .3/3
+!      B13 O+(2D) from O2 + ecalc*     Link, 1982; guess of .3/3
+!      B14 O+(4S) from O2 + ecalc*     Link, 1982; guess of .3/3
+!      B15 N+ from N2 + ecalc*         Richards & Torr, 1985
 !      B16 N(2D) from above        Zipf et al, 1980
 !      B17 O(1D) from N+ + O2      Langford et al, 1985
 !      B18 O(1S) from N2(A) + O    Sharp & Torr, 1979
@@ -159,10 +159,10 @@
 !      B20 O(1D) from N(2D) + O    ?
 !      B21 NO+ from N+ + O2        Langford et al, 1985
 !      B22 O2+ from N+ + O2        Langford et al, 1985
-!      B23 N(2P) from N2+ + e      Queffelec et al, 1985
+!      B23 N(2P) from N2+ + ecalc      Queffelec et al, 1985
 !      B24 N2 + protons -> N + N   ?
-!      B25 N(2D) from N2 + e* dis  Zipf et al, 1980
-!      B26 N(2P) from N2 + e* dis  Zipf et al, 1980
+!      B25 N(2D) from N2 + ecalc* dis  Zipf et al, 1980
+!      B26 N(2P) from N2 + ecalc* dis  Zipf et al, 1980
 !      B27 N(2D) from N2 + hv      Richards et al, 1981 (add to B28)
 !      B28 N(2P) from N2 + hv      ? (cf Zipf & McGlaughlin, 1978)
 !      B29 N(2D) from N(2P) + O    ?
@@ -172,7 +172,7 @@
 !      B33 O(1S) from O2+ + N      Frederick et al, 1976; Kopp ea, 1977
 !      B34 O(1S) from N(2D) + NO   Frederick et al, 1976; Kopp ea, 1977
 !      B35 O2 + protons -> (O1D)   ?
-!      B36 N2+(B) from N2 + e*     Borst & Zipf, 1970; Shemansky & Broadfoot, 1971
+!      B36 N2+(B) from N2 + ecalc*     Borst & Zipf, 1970; Shemansky & Broadfoot, 1971
 !      B37 (0,0) (3914) fr. N2+(B) Shemansky & Broadfoot, 1971
 !      B38 (0,1) (4278) fr. N2+(B) Shemansky & Broadfoot, 1971
 !      B39 (0,0) (3371) fr. N2(C)  Conway, 1983; Benesch et al, 1966
@@ -183,25 +183,39 @@
 !      B44 7990 fr. O(3s'3D)       appx. fr. Hecht, p.c.
 !      B45                         not currently in use
 !      B46 N 1493 fr. N2+hv DI     guess
-!      B47 N 1493 fr. N2+e* DI     guess, cf. Mumma and Zipf (1973), Meier (1991)
+!      B47 N 1493 fr. N2+ecalc* DI     guess, cf. Mumma and Zipf (1973), Meier (1991)
 !      B48 N2(a) from (a,a',w)     estimate from comparison with Ajello & Shemansky, GUVI data, etc.
 !      B49 7774, 1356 fr. O-+O+    Melendez, 1999; Qin, 2015 (cf. Tinsley 1973; Julienne, 1974)
 !      G1  N2+B(0,0) (3914)        Broadfoot, 1967
 !      G2  N2+B(0,1) (4278)        Broadfoot, 1967
 
 
-  SUBROUTINE GCHEM
+  SUBROUTINE GCHEM(jmax,nmaj,nst,nei,nex,nw,nc,kchem, &
+      sza, &
+      zz,zo,zn2,zo2,zno,zns,znd,ze,ztn,zti,zte,tei,tpi,tir, &
+      photoi,photod,phono,pia,sion,aglw, &
+      zeta,zceta,vcb)
 !
-    use cglow,only: jmax, nbins, nmaj, nex, nw, nc, kchem, sza, &
-                    zz, zo, zn2, zo2, zno, zns, znd, ze, ztn, zti, zte, &
-                    photoi, photod, phono, pia, sion, aglw, &
-                    tei, tpi, tir, e=>ecalc, den=>zxden, zeta, zceta, vcb, &
-                    P=>production, L=>loss
-!
+    use, intrinsic :: iso_fortran_env, only: wp => real32
     implicit none
     integer,parameter :: nr=50
     real,parameter :: re=6.37E8
 !
+
+    integer::jmax,nmaj,nex,nw,nc,kchem,nst,nei
+    real::sza
+    real,dimension(jmax)::zz,zo,zn2,zo2,zno,zns,znd,ze,ztn,zti,zte,tei,tpi,tir,ecalc
+    real,dimension(nst,nmaj,jmax)::photoi,photod
+    real,dimension(nst,jmax)::phono
+    real,dimension(nmaj,jmax)::pia,sion
+    real,dimension(nei,nmaj,jmax)::aglw
+    real,dimension(nex,jmax)::zxden
+    real(wp),dimension(nw,jmax)::zeta
+    real,dimension(nc,nw,jmax)::zceta
+    real,dimension(nw)::vcb
+    real(wp),dimension(nex,jmax)::production,loss
+      
+
     real ::   A(NR), B(NR), BZ(NR,JMAX), G(NR,JMAX), KZ(NR,JMAX), &
               OEI(JMAX), O2EI(JMAX), RN2EI(JMAX), &
               OPI(JMAX), O2PI(JMAX), RN2PI(JMAX), &
@@ -230,7 +244,7 @@
     zeta(:,:) = 0.
     zceta(:,:,:) = 0.
     vcb(:) = 0.
-    if (kchem .ge. 3) den(:,:) = 0.
+    if (kchem .ge. 3) zxden(:,:) = 0.
     g(:,:) = 0.
 !
 !
@@ -324,7 +338,7 @@
 !
 ! Calculate Electron impact ionization, photoionization, and electron
 ! impact dissociation rates at each altitude; put a priori electron
-! density in calculated electron density array: put a priori N(2D) in DEN array:
+! density in calculated electron density array: put a priori N(2D) in zxden array:
 !
     DO I=1,JMAX
       OEI(I)   = SION(1,I)+PIA(1,I)
@@ -338,8 +352,8 @@
       TIR(I)   = TEI(I)+TPI(I)
       RN2ED(I) = AGLW(5,3,I)+AGLW(6,3,I)+AGLW(7,3,I)+B(24)*PIA(3,I)
       SRCED(I) = AGLW(4,2,I) + B(35)*PIA(2,I)
-      E(I)     = ZE(I)
-      DEN(10,I)= ZND(I)
+      ecalc(I)     = ZE(I)
+      zxden(10,I)= ZND(I)
     ENDDO
 !
 !
@@ -355,7 +369,7 @@
 !
 !
 ! Iterative loop assures that electron density and feedback reactions
-! (O+(2P,2D)+e, O+(4S)+N(2D), N2++O) are correctly computed:
+! (O+(2P,2D)+ecalc, O+(4S)+N(2D), N2++O) are correctly computed:
 !
     DO ITER=1,5
 !
@@ -367,68 +381,68 @@
 !
 ! O+(2P):
 !
-      P(1,I)= PHOTOI(3,1,I) &
+      production(1,I)= PHOTOI(3,1,I) &
             + B(41) * PHOTOI(5,1,I) &
             + B(30) * PHOTOI(4,2,I) &
             + B(9)  * OEI(I) &
             + B(12) * O2EI(I)
-      L(1,I)= KZ(16,I) * ZN2(I) &
+      loss(1,I)= KZ(16,I) * ZN2(I) &
             + KZ(17,I) * ZO2(I) &
             + KZ(19,I) * ZO(I) &
-            + KZ(18,I) * E(I) &
+            + KZ(18,I) * ecalc(I) &
             + A(8) &
             + A(7)
-      DEN(1,I) = P(1,I) / L(1,I)
+      zxden(1,I) = production(1,I) / loss(1,I)
 !
 !
 ! O+(2D):
 !
-      P(2,I)= PHOTOI(2,1,I) &
+      production(2,I)= PHOTOI(2,1,I) &
             + B(42) * PHOTOI(5,1,I) &
             + B(31) * PHOTOI(4,2,I) &
             + B(10) * OEI(I) &
             + B(13) * O2EI(I) &
-            + B(8)  * KZ(18,I) * DEN(1,I) * E(I) &
-            + A(8)  * DEN(1,I)
-      L(2,I)= KZ(12,I) * ZN2(I) &
+            + B(8)  * KZ(18,I) * zxden(1,I) * ecalc(I) &
+            + A(8)  * zxden(1,I)
+      loss(2,I)= KZ(12,I) * ZN2(I) &
             + KZ(13,I) * ZO2(I) &
             + KZ(15,I) * ZO(I) &
-            + KZ(14,I) * E(I) &
+            + KZ(14,I) * ecalc(I) &
             + A(6)
-      DEN(2,I) = P(2,I) / L(2,I)
+      zxden(2,I) = production(2,I) / loss(2,I)
 !
 !
 ! N+:
 !
       IF (KCHEM .GE. 2) THEN
-        P(4,I) = PHOTOI(6,3,I) &
+        production(4,I) = PHOTOI(6,3,I) &
                + B(15) * RN2EI(I) &
-               + KZ(38,I) * DEN(3,I) * DEN(10,I)
-        L(4,I) = KZ(25,I) * ZO2(I) &
+               + KZ(38,I) * zxden(3,I) * zxden(10,I)
+        loss(4,I) = KZ(25,I) * ZO2(I) &
                + KZ(32,I) * ZO(I)
-        DEN(4,I) = P(4,I) / L(4,I)
+        zxden(4,I) = production(4,I) / loss(4,I)
       ENDIF
 !
 !
 ! O+(4S):
 !
       IF (KCHEM .GE. 3) THEN
-        P(3,I)= PHOTOI(1,1,I) + PHOTOI(4,1,I) &
+        production(3,I)= PHOTOI(1,1,I) + PHOTOI(4,1,I) &
               + B(32) * PHOTOI(4,2,I) &
               + B(11) * OEI(I) &
               + B(14) * O2EI(I)  &
-              + KZ(14,I) * DEN(2,I) * E(I) &
-              + KZ(15,I) * DEN(2,I) * ZO(I) &
-              + A(6) * DEN(2,I) &
-              + (1.-B(8)) * KZ(18,I) * DEN(1,I) * E(I) &
-              + KZ(19,I) * DEN(1,I) * ZO(I) &
-              + A(7) * DEN(1,I) &
-              + KZ(32,I) * DEN(4,I) * ZO(I) &
-              + KZ(39,I) * DEN(5,I) * ZO(I)
-        L(3,I)= KZ(1,I) * ZN2(I) &
+              + KZ(14,I) * zxden(2,I) * ecalc(I) &
+              + KZ(15,I) * zxden(2,I) * ZO(I) &
+              + A(6) * zxden(2,I) &
+              + (1.-B(8)) * KZ(18,I) * zxden(1,I) * ecalc(I) &
+              + KZ(19,I) * zxden(1,I) * ZO(I) &
+              + A(7) * zxden(1,I) &
+              + KZ(32,I) * zxden(4,I) * ZO(I) &
+              + KZ(39,I) * zxden(5,I) * ZO(I)
+        loss(3,I)= KZ(1,I) * ZN2(I) &
               + KZ(2,I) * ZO2(I) &
-              + KZ(38,I) * DEN(10,I)
-        DEN(3,I) = P(3,I) / L(3,I)
+              + KZ(38,I) * zxden(10,I)
+        zxden(3,I) = production(3,I) / loss(3,I)
       ENDIF
 !
     ENDDO    ! bottom of atomic ion loop
@@ -440,38 +454,38 @@
     IF (KCHEM .GE. 3) THEN
 !
       DO I=J200+1,JMAX
-        P(5,I)= RN2PI(I) &
+        production(5,I)= RN2PI(I) &
                 + (1.-B(15)) * RN2EI(I) &
-                + KZ(12,I) * DEN(2,I) * ZN2(I) &
-                + KZ(16,I) * DEN(1,I) * ZN2(I)
-        L(5,I)= KZ(3,I)  * ZO(I) &
+                + KZ(12,I) * zxden(2,I) * ZN2(I) &
+                + KZ(16,I) * zxden(1,I) * ZN2(I)
+        loss(5,I)= KZ(3,I)  * ZO(I) &
                 + KZ(4,I)  * ZO2(I) &
-                + KZ(23,I) * E(I) &
+                + KZ(23,I) * ecalc(I) &
                 + KZ(39,I) * ZO(I)
-        DEN(5,I) = P(5,I) / L(5,I)
+        zxden(5,I) = production(5,I) / loss(5,I)
         QQ(I) = PHONO(1,I) &
-                + KZ(3,I)  * DEN(5,I) * ZO(I) &
-                + B(21) * KZ(25,I) * DEN(4,I) * ZO2(I)
+                + KZ(3,I)  * zxden(5,I) * ZO(I) &
+                + B(21) * KZ(25,I) * zxden(4,I) * ZO2(I)
         RR(I) = KZ(30,I) * ZNO(I) &
                 + KZ(37,I) * ZNS(I)
         SS(I) = KZ(1,I) * ZN2(I) &
                 + KZ(40,I) * ZNO(I)
-        TT(I) = KZ(22,I) * E(I)
+        TT(I) = KZ(22,I) * ecalc(I)
         UU(I) = O2PI(I) &
                 + (1.-B(12)-B(13)-B(14)) * O2EI(I) &
-                + KZ(13,I) * DEN(2,I) * ZO2(I) &
-                + KZ(17,I) * DEN(1,I) * ZO2(I) &
-                + KZ(4,I)  * DEN(5,I) * ZO2(I) &
-                + B(22) * KZ(25,I) * DEN(4,I) * ZO2(I)
+                + KZ(13,I) * zxden(2,I) * ZO2(I) &
+                + KZ(17,I) * zxden(1,I) * ZO2(I) &
+                + KZ(4,I)  * zxden(5,I) * ZO2(I) &
+                + B(22) * KZ(25,I) * zxden(4,I) * ZO2(I)
         VV(I) = KZ(2,I) * ZO2(I)
-        WW(I) = KZ(24,I) * E(I) &
+        WW(I) = KZ(24,I) * ecalc(I) &
                 + KZ(30,I) * ZNO(I) &
                 + KZ(37,I) * ZNS(I)
-        XX(I) = DEN(1,I) + DEN(2,I) + DEN(4,I) + DEN(5,I)
-        DEN(3,I) = (TT(I)*WW(I)*E(I) - TT(I)*WW(I)*XX(I) - TT(I)*UU(I) &
+        XX(I) = zxden(1,I) + zxden(2,I) + zxden(4,I) + zxden(5,I)
+        zxden(3,I) = (TT(I)*WW(I)*ecalc(I) - TT(I)*WW(I)*XX(I) - TT(I)*UU(I) &
                    - QQ(I)*WW(I) - RR(I)*UU(I) ) / &
                       (TT(I)*WW(I) + TT(I)*VV(I) + RR(I)*VV(I) + SS(I)*WW(I))
-        if (den(3,i) .lt. 0.) den(3,i)=0.
+        if (zxden(3,i) .lt. 0.) zxden(3,i)=0.
       ENDDO
 !
     ENDIF
@@ -485,24 +499,24 @@
 !
       if (iter .eq. 1) then
         do i=1,j200
-          tatomi=den(1,i)+den(2,i)+den(3,i)+den(4,i)
+          tatomi=zxden(1,i)+zxden(2,i)+zxden(3,i)+zxden(4,i)
           alphaef=(kz(22,i)+kz(24,i))/2.
-          e(i)=(tatomi+sqrt(tatomi**2+4.*tir(i)/alphaef))/2.
+          ecalc(i)=(tatomi+sqrt(tatomi**2+4.*tir(i)/alphaef))/2.
         enddo
       else
         do i=1,j200
-          toti = den(1,i)+den(2,i)+den(3,i)+den(4,i) &
-                +den(5,i)+den(6,i)+den(7,i)
-          e(i) = (toti + e(i)) / 2.
+          toti = zxden(1,i)+zxden(2,i)+zxden(3,i)+zxden(4,i) &
+                +zxden(5,i)+zxden(6,i)+zxden(7,i)
+          ecalc(i) = (toti + ecalc(i)) / 2.
         enddo
       endif
 !
 !
 ! Smoothly transition to electron density above 200 km:
 !
-      E(J200+1) = E(J200) * ( E(J200+3) / E(J200) ) &
+      ecalc(J200+1) = ecalc(J200) * ( ecalc(J200+3) / ecalc(J200) ) &
                   ** ( (ZZ(J200+1)-ZZ(J200)) / (ZZ(J200+3)-ZZ(J200)) )
-      E(J200+2) = E(J200) * (E(J200+3)/E(J200)) &
+      ecalc(J200+2) = ecalc(J200) * (ecalc(J200+3)/ecalc(J200)) &
                   ** ( (ZZ(J200+2)-ZZ(J200)) / (ZZ(J200+3)-ZZ(J200)) )
 !
     endif
@@ -516,129 +530,129 @@
 ! N2+:
 !
       IF (KCHEM .GE. 2) THEN
-        P(5,I)= RN2PI(I) &
+        production(5,I)= RN2PI(I) &
               + (1.-B(15)) * RN2EI(I) &
-              + KZ(12,I) * DEN(2,I) * ZN2(I) &
-              + KZ(16,I) * DEN(1,I) * ZN2(I)
-        L(5,I)= KZ(3,I)  * ZO(I) &
+              + KZ(12,I) * zxden(2,I) * ZN2(I) &
+              + KZ(16,I) * zxden(1,I) * ZN2(I)
+        loss(5,I)= KZ(3,I)  * ZO(I) &
               + KZ(4,I)  * ZO2(I) &
-              + KZ(23,I) * E(I) &
+              + KZ(23,I) * ecalc(I) &
               + KZ(39,I) * ZO(I)
-          DEN(5,I) = P(5,I) / L(5,I)
+          zxden(5,I) = production(5,I) / loss(5,I)
       ENDIF
 !
 !
 ! O2+:
 !
       IF (KCHEM .GE. 3) THEN
-        P(6,I)= O2PI(I) &
+        production(6,I)= O2PI(I) &
               + (1.-B(12)-B(13)-B(14)) * O2EI(I) &
-              + KZ(2,I)  * DEN(3,I) * ZO2(I) &
-              + KZ(13,I) * DEN(2,I) * ZO2(I) &
-              + KZ(17,I) * DEN(1,I) * ZO2(I) &
-              + KZ(4,I)  * DEN(5,I) * ZO2(I) &
-              + B(22) * KZ(25,I) * DEN(4,I) * ZO2(I)
-        L(6,I)= KZ(24,I) * E(I) &
+              + KZ(2,I)  * zxden(3,I) * ZO2(I) &
+              + KZ(13,I) * zxden(2,I) * ZO2(I) &
+              + KZ(17,I) * zxden(1,I) * ZO2(I) &
+              + KZ(4,I)  * zxden(5,I) * ZO2(I) &
+              + B(22) * KZ(25,I) * zxden(4,I) * ZO2(I)
+        loss(6,I)= KZ(24,I) * ecalc(I) &
               + KZ(30,I) * ZNO(I) &
               + KZ(37,I) * ZNS(I)
-        DEN(6,I) = P(6,I)/ L(6,I)
+        zxden(6,I) = production(6,I)/ loss(6,I)
       ENDIF
 !
 !
 ! NO+:
 !
       IF (KCHEM .GE. 3) THEN
-        P(7,I)= PHONO(1,I) &
-              + KZ(1,I)  * DEN(3,I) * ZN2(I) &
-              + KZ(40,I) * DEN(3,I) * ZNO(I) &
-              + KZ(3,I)  * DEN(5,I) * ZO(I) &
-              + B(21) * KZ(25,I) * DEN(4,I) * ZO2(I) &
-              + KZ(30,I) * DEN(6,I) * ZNO(I) &
-              + KZ(37,I) * DEN(6,I) * ZNS(I)
-        L(7,I)= KZ(22,I) * E(I)
-        DEN(7,I) = P(7,I) / L(7,I)
+        production(7,I)= PHONO(1,I) &
+              + KZ(1,I)  * zxden(3,I) * ZN2(I) &
+              + KZ(40,I) * zxden(3,I) * ZNO(I) &
+              + KZ(3,I)  * zxden(5,I) * ZO(I) &
+              + B(21) * KZ(25,I) * zxden(4,I) * ZO2(I) &
+              + KZ(30,I) * zxden(6,I) * ZNO(I) &
+              + KZ(37,I) * zxden(6,I) * ZNS(I)
+        loss(7,I)= KZ(22,I) * ecalc(I)
+        zxden(7,I) = production(7,I) / loss(7,I)
       ENDIF
 !
 !
 ! N2(A):
 !
-      P(8,I)= AGLW(1,3,I) + AGLW(2,3,I) + B(43)*AGLW(3,3,I)
-      L(8,I)= KZ(26,I) * ZO(I) &
+      production(8,I)= AGLW(1,3,I) + AGLW(2,3,I) + B(43)*AGLW(3,3,I)
+      loss(8,I)= KZ(26,I) * ZO(I) &
             + KZ(29,I) * ZO2(I) &
             + A(10)
-      DEN(8,I) = P(8,I) / L(8,I)
+      zxden(8,I) = production(8,I) / loss(8,I)
 !
 !
 ! N(2P):
 !
-      P(9,I)= B(28) * PHOTOD(1,3,I) &
+      production(9,I)= B(28) * PHOTOD(1,3,I) &
             + B(28) * PHOTOI(6,3,I) &
             + B(26) * RN2ED(I) &
-            + B(23) * KZ(23,I) * DEN(5,I) * E(I)
-      L(9,I)= KZ(33,I) * ZO(I) &
+            + B(23) * KZ(23,I) * zxden(5,I) * ecalc(I)
+      loss(9,I)= KZ(33,I) * ZO(I) &
             + KZ(34,I) * ZO2(I) &
             + KZ(35,I) * ZNO(I) &
             + A(11) &
             + A(12)
-      DEN(9,I) = P(9,I) / L(9,I)
+      zxden(9,I) = production(9,I) / loss(9,I)
 !
 !
 ! N(2D):
 !
-      P(10,I)= B(27) * PHOTOD(1,3,I) &
+      production(10,I)= B(27) * PHOTOD(1,3,I) &
              + B(27) * PHOTOI(6,3,I) &
              + B(25) * RN2ED(I) &
              + B(16) * B(15) * RN2EI(I) &
-             + B(3)  * KZ(22,I) * DEN(7,I) * E(I) &
-             + B(4)  * KZ(23,I) * DEN(5,I) * E(I) &
-             + B(5)  * KZ(3,I)  * DEN(5,I) * ZO(I) &
-             + B(29) * KZ(33,I) * DEN(9,I) * ZO(I) &
-             + A(12) * DEN(9,I)
-      L(10,I)= KZ(5,I)  * ZO2(I) &
+             + B(3)  * KZ(22,I) * zxden(7,I) * ecalc(I) &
+             + B(4)  * KZ(23,I) * zxden(5,I) * ecalc(I) &
+             + B(5)  * KZ(3,I)  * zxden(5,I) * ZO(I) &
+             + B(29) * KZ(33,I) * zxden(9,I) * ZO(I) &
+             + A(12) * zxden(9,I)
+      loss(10,I)= KZ(5,I)  * ZO2(I) &
              + KZ(6,I)  * ZO(I) &
-             + KZ(7,I)  * E(I) &
+             + KZ(7,I)  * ecalc(I) &
              + KZ(31,I) * ZNO(I) &
-             + KZ(38,I) * DEN(3,I) &
+             + KZ(38,I) * zxden(3,I) &
              + A(1)
-      DEN(10,I) = P(10,I) / L(10,I)
+      zxden(10,I) = production(10,I) / loss(10,I)
 !
 !
 ! O(1S):
 !
-      BZ(1,I) = 0.12 + 0.02 * ALOG10 (E(I)/ZO(I)*(300./ZTE(I))**0.7)
+      BZ(1,I) = 0.12 + 0.02 * ALOG10 (ecalc(I)/ZO(I)*(300./ZTE(I))**0.7)
       IF (BZ(1,I) .LT. 0.03) BZ(1,I)=0.03
-      P(11,I)= AGLW(2,1,I) &
-             + BZ(1,I) * KZ(24,I) * DEN(6,I)  * E(I) &
-             + B(18) * KZ(26,I) * DEN(8,I) * ZO(I) &
-             + B(33) * KZ(37,I) * DEN(6,I) * ZNS(I) &
-             + B(34) * KZ(31,I) * DEN(10,I) * ZNO(I) &
+      production(11,I)= AGLW(2,1,I) &
+             + BZ(1,I) * KZ(24,I) * zxden(6,I)  * ecalc(I) &
+             + B(18) * KZ(26,I) * zxden(8,I) * ZO(I) &
+             + B(33) * KZ(37,I) * zxden(6,I) * ZNS(I) &
+             + B(34) * KZ(31,I) * zxden(10,I) * ZNO(I) &
              + PHOTOD(2,2,I)
-      L(11,I)= KZ(11,I) * ZO(I) &
+      loss(11,I)= KZ(11,I) * ZO(I) &
              + KZ(36,I) * ZO2(I) &
              + A(5) &
              + A(4)
-      DEN(11,I) = P(11,I) / L(11,I)
+      zxden(11,I) = production(11,I) / loss(11,I)
 !
 !
 ! O(1D):
 !
-      P(12,I)= AGLW(1,1,I) &
-             + KZ(28,I) * E(I)  * ZO(I) &
-             + B(2)  * KZ(24,I) * DEN(6,I)  * E(I) &
-             + B(6)  * KZ(5,I)  * DEN(10,I) * ZO2(I) &
-             + B(20) * KZ(6,I)  * DEN(10,I) * ZO(I) &
-             + B(17) * KZ(25,I) * DEN(4,I)  * ZO2(I) &
-             + B(7)  * KZ(15,I) * DEN(2,I)  * ZO(I) &
+      production(12,I)= AGLW(1,1,I) &
+             + KZ(28,I) * ecalc(I)  * ZO(I) &
+             + B(2)  * KZ(24,I) * zxden(6,I)  * ecalc(I) &
+             + B(6)  * KZ(5,I)  * zxden(10,I) * ZO2(I) &
+             + B(20) * KZ(6,I)  * zxden(10,I) * ZO(I) &
+             + B(17) * KZ(25,I) * zxden(4,I)  * ZO2(I) &
+             + B(7)  * KZ(15,I) * zxden(2,I)  * ZO(I) &
              + SRCED(I) &
              + PHOTOD(1,2,I) &
-             + A(5)  * DEN(11,I)
-      L(12,I)= KZ(8,I)  * ZN2(I)  &
+             + A(5)  * zxden(11,I)
+      loss(12,I)= KZ(8,I)  * ZN2(I)  &
              + KZ(9,I)  * ZO2(I) &
-             + KZ(10,I) * E(I) &
+             + KZ(10,I) * ecalc(I) &
              + KZ(27,I) * ZO(I) &
              + A(2) &
              + A(3)
-      DEN(12,I) = P(12,I) / L(12,I)
+      zxden(12,I) = production(12,I) / loss(12,I)
 !
     ENDDO   ! bottome of molecular ion / excited species loop
 !
@@ -648,14 +662,14 @@
 ! Impose charge neutrality:
 !
     do i=1,j200
-      e(i)=den(1,i)+den(2,i)+den(3,i)+den(4,i)+den(5,i)+den(6,i)+den(7,i)
+      ecalc(i)=zxden(1,i)+zxden(2,i)+zxden(3,i)+zxden(4,i)+zxden(5,i)+zxden(6,i)+zxden(7,i)
     enddo
 !
 !
 ! Calculate O- for mutual neutralization source of O*
 !
     do i=1,jmax
-      ominus(i) = (kz(42,i)*zo(i)*e(i)) / (kz(43,i)*den(3,i)+kz(44,i)*zo(i))
+      ominus(i) = (kz(42,i)*zo(i)*ecalc(i)) / (kz(43,i)*zxden(3,i)+kz(44,i)*zo(i))
     enddo
 !
 !
@@ -665,76 +679,76 @@
     DO I=1,JMAX
 !
       ZCETA(1,1,I) = B(39) * AGLW(3,3,I)
-      ZCETA(2,1,I) = B(40) * A(10) * P(8,I) / L(8,I)
+      ZCETA(2,1,I) = B(40) * A(10) * production(8,I) / loss(8,I)
 !
       ZCETA(1,2,I) = B(38) * B(36) * RN2EI(I)
       ZCETA(2,2,I) = B(38) * PHOTOI(3,3,I)
-      ZCETA(3,2,I) = G(2,I) * DEN(5,I)
+      ZCETA(3,2,I) = G(2,I) * zxden(5,I)
 !
-      ZCETA(1,3,I) = A(1) * B(27) * PHOTOD(1,3,I) / L(10,I)
-      ZCETA(2,3,I) = A(1) * B(27) * PHOTOI(6,3,I) / L(10,I)
-      ZCETA(3,3,I) = A(1) * B(25) * RN2ED(I) / L(10,I)
-      ZCETA(4,3,I) = A(1) * B(16) * B(15) * RN2EI(I) / L(10,I)
-      ZCETA(5,3,I) = A(1) * B(3)  * KZ(22,I) * DEN(7,I) * E(I) /L(10,I)
-      ZCETA(6,3,I) = A(1) * B(4)  * KZ(23,I) * DEN(5,I) * E(I) /L(10,I)
-      ZCETA(7,3,I) = A(1) * B(5)  * KZ(3,I)  * DEN(5,I) * ZO(I) /L(10,I)
-      ZCETA(8,3,I) = A(1) * B(29) * KZ(33,I) * DEN(9,I) * ZO(I) /L(10,I)
-      ZCETA(9,3,I) = A(1) * A(12) * DEN(9,I) / L(10,I)
+      ZCETA(1,3,I) = A(1) * B(27) * PHOTOD(1,3,I) / loss(10,I)
+      ZCETA(2,3,I) = A(1) * B(27) * PHOTOI(6,3,I) / loss(10,I)
+      ZCETA(3,3,I) = A(1) * B(25) * RN2ED(I) / loss(10,I)
+      ZCETA(4,3,I) = A(1) * B(16) * B(15) * RN2EI(I) / loss(10,I)
+      ZCETA(5,3,I) = A(1) * B(3)  * KZ(22,I) * zxden(7,I) * ecalc(I) /loss(10,I)
+      ZCETA(6,3,I) = A(1) * B(4)  * KZ(23,I) * zxden(5,I) * ecalc(I) /loss(10,I)
+      ZCETA(7,3,I) = A(1) * B(5)  * KZ(3,I)  * zxden(5,I) * ZO(I) /loss(10,I)
+      ZCETA(8,3,I) = A(1) * B(29) * KZ(33,I) * zxden(9,I) * ZO(I) /loss(10,I)
+      ZCETA(9,3,I) = A(1) * A(12) * zxden(9,I) / loss(10,I)
 !
-      ZCETA(1,4,I) = A(5) * AGLW(2,1,I) / L(11,I)
-      ZCETA(2,4,I) = A(5) * BZ(1,I)*KZ(24,I) * DEN(6,I) * E(I)  /L(11,I)
-      ZCETA(3,4,I) = A(5) * B(18) * KZ(26,I) * DEN(8,I) * ZO(I) /L(11,I)
-      ZCETA(4,4,I) = A(5) * B(33) * KZ(37,I) * DEN(6,I) * ZNS(I)/L(11,I)
-      ZCETA(5,4,I) = A(5) * B(34) * KZ(31,I) * DEN(10,I)* ZNO(I)/L(11,I)
-      ZCETA(6,4,I) = PHOTOD(2,2,I) / L(11,I)
+      ZCETA(1,4,I) = A(5) * AGLW(2,1,I) / loss(11,I)
+      ZCETA(2,4,I) = A(5) * BZ(1,I)*KZ(24,I) * zxden(6,I) * ecalc(I)  /loss(11,I)
+      ZCETA(3,4,I) = A(5) * B(18) * KZ(26,I) * zxden(8,I) * ZO(I) /loss(11,I)
+      ZCETA(4,4,I) = A(5) * B(33) * KZ(37,I) * zxden(6,I) * ZNS(I)/loss(11,I)
+      ZCETA(5,4,I) = A(5) * B(34) * KZ(31,I) * zxden(10,I)* ZNO(I)/loss(11,I)
+      ZCETA(6,4,I) = PHOTOD(2,2,I) / loss(11,I)
 !
-      ZCETA(1,5,I) = A(2) * AGLW(1,1,I) / L(12,I)
-      ZCETA(2,5,I) = A(2) * KZ(28,I) * E(I)  * ZO(I) / L(12,I)
-      ZCETA(3,5,I) = A(2) * B(2)  * KZ(24,I) * DEN(6,I)  * E(I)/L(12,I)
-      ZCETA(4,5,I) = A(2) * B(6)  * KZ(5,I)  * DEN(10,I) *ZO2(I)/L(12,I)
-      ZCETA(5,5,I) = A(2) * B(20) * KZ(6,I)  * DEN(10,I) * ZO(I)/L(12,I)
-      ZCETA(6,5,I) = A(2) * B(17) * KZ(25,I) * DEN(4,I) * ZO2(I)/L(12,I)
-      ZCETA(7,5,I) = A(2) * B(7)  * KZ(15,I) * DEN(2,I)  * ZO(I)/L(12,I)
-      ZCETA(8,5,I) = A(2) * SRCED(I) / L(12,I)
-      ZCETA(9,5,I) = A(2) * PHOTOD(1,2,I) / L(12,I)
-      ZCETA(10,5,I)= A(2) * A(5)  * DEN(11,I) / L(12,I)
+      ZCETA(1,5,I) = A(2) * AGLW(1,1,I) / loss(12,I)
+      ZCETA(2,5,I) = A(2) * KZ(28,I) * ecalc(I)  * ZO(I) / loss(12,I)
+      ZCETA(3,5,I) = A(2) * B(2)  * KZ(24,I) * zxden(6,I)  * ecalc(I)/loss(12,I)
+      ZCETA(4,5,I) = A(2) * B(6)  * KZ(5,I)  * zxden(10,I) *ZO2(I)/loss(12,I)
+      ZCETA(5,5,I) = A(2) * B(20) * KZ(6,I)  * zxden(10,I) * ZO(I)/loss(12,I)
+      ZCETA(6,5,I) = A(2) * B(17) * KZ(25,I) * zxden(4,I) * ZO2(I)/loss(12,I)
+      ZCETA(7,5,I) = A(2) * B(7)  * KZ(15,I) * zxden(2,I)  * ZO(I)/loss(12,I)
+      ZCETA(8,5,I) = A(2) * SRCED(I) / loss(12,I)
+      ZCETA(9,5,I) = A(2) * PHOTOD(1,2,I) / loss(12,I)
+      ZCETA(10,5,I)= A(2) * A(5)  * zxden(11,I) / loss(12,I)
 !
-      ZCETA(1,6,I) = A(8) * (PHOTOI(3,1,I)+B(41)*PHOTOI(5,1,I)) / L(1,I)
-      ZCETA(2,6,I) = A(8) * B(30) * PHOTOI(4,2,I) / L(1,I)
-      ZCETA(3,6,I) = A(8) * B(9) * OEI(I) / L(1,I)
-      ZCETA(4,6,I) = A(8) * B(12) * O2EI(I) / L(1,I)
+      ZCETA(1,6,I) = A(8) * (PHOTOI(3,1,I)+B(41)*PHOTOI(5,1,I)) / loss(1,I)
+      ZCETA(2,6,I) = A(8) * B(30) * PHOTOI(4,2,I) / loss(1,I)
+      ZCETA(3,6,I) = A(8) * B(9) * OEI(I) / loss(1,I)
+      ZCETA(4,6,I) = A(8) * B(12) * O2EI(I) / loss(1,I)
 !
-      ZCETA(1,7,I) = A(12) * B(28) * PHOTOD(1,3,I) / L(9,I)
-      ZCETA(2,7,I) = A(12) * B(28) * PHOTOI(6,3,I) / L(9,I)
-      ZCETA(3,7,I) = A(12) * B(26) * RN2ED(I) / L(9,I)
-      ZCETA(4,7,I) = A(12) * B(23) * KZ(23,I) * DEN(5,I) * E(I) / L(9,I)
+      ZCETA(1,7,I) = A(12) * B(28) * PHOTOD(1,3,I) / loss(9,I)
+      ZCETA(2,7,I) = A(12) * B(28) * PHOTOI(6,3,I) / loss(9,I)
+      ZCETA(3,7,I) = A(12) * B(26) * RN2ED(I) / loss(9,I)
+      ZCETA(4,7,I) = A(12) * B(23) * KZ(23,I) * zxden(5,I) * ecalc(I) / loss(9,I)
 !
-      ZCETA(1,8,I) = A(11) * B(28) * PHOTOD(1,3,I) / L(9,I)
-      ZCETA(2,8,I) = A(11) * B(28) * PHOTOI(6,3,I) / L(9,I)
-      ZCETA(3,8,I) = A(11) * B(26) * RN2ED(I) / L(9,I)
-      ZCETA(4,8,I) = A(11) * B(23) * KZ(23,I) * DEN(5,I) * E(I) / L(9,I)
+      ZCETA(1,8,I) = A(11) * B(28) * PHOTOD(1,3,I) / loss(9,I)
+      ZCETA(2,8,I) = A(11) * B(28) * PHOTOI(6,3,I) / loss(9,I)
+      ZCETA(3,8,I) = A(11) * B(26) * RN2ED(I) / loss(9,I)
+      ZCETA(4,8,I) = A(11) * B(23) * KZ(23,I) * zxden(5,I) * ecalc(I) / loss(9,I)
 !
       ZCETA(1,9,I) = AGLW(5,1,I)
-      ZCETA(2,9,I) = KZ(41,I) * DEN(3,I) * E(I)
-      ZCETA(3,9,I) = B(49) * KZ(43,I) * OMINUS(I) * DEN(3,I)
+      ZCETA(2,9,I) = KZ(41,I) * zxden(3,I) * ecalc(I)
+      ZCETA(3,9,I) = B(49) * KZ(43,I) * OMINUS(I) * zxden(3,I)
 !
       ZCETA(1,10,I) = AGLW(6,1,I)
       ZCETA(2,10,I) = AGLW(7,1,I)
       ZCETA(3,10,I) = B(44) * AGLW(8,1,I)
 !
-      ZCETA(1,11,I) = A(6) * (PHOTOI(2,1,I)+B(42)*PHOTOI(5,1,I))/ L(2,I)
-      ZCETA(2,11,I) = A(6) * B(31) * PHOTOI(4,2,I) / L(2,I)
-      ZCETA(3,11,I) = A(6) * B(10) * OEI(I) / L(2,I)
-      ZCETA(4,11,I) = A(6) * B(13) * O2EI(I) / L(2,I)
-      ZCETA(5,11,I) = A(6) * B(8)  * KZ(18,I) * DEN(1,I) * E(I) / L(2,I)
-      ZCETA(6,11,I) = A(6) * A(8)  * DEN(1,I) / L(2,I)
+      ZCETA(1,11,I) = A(6) * (PHOTOI(2,1,I)+B(42)*PHOTOI(5,1,I))/ loss(2,I)
+      ZCETA(2,11,I) = A(6) * B(31) * PHOTOI(4,2,I) / loss(2,I)
+      ZCETA(3,11,I) = A(6) * B(10) * OEI(I) / loss(2,I)
+      ZCETA(4,11,I) = A(6) * B(13) * O2EI(I) / loss(2,I)
+      ZCETA(5,11,I) = A(6) * B(8)  * KZ(18,I) * zxden(1,I) * ecalc(I) / loss(2,I)
+      ZCETA(6,11,I) = A(6) * A(8)  * zxden(1,I) / loss(2,I)
 !
       ZCETA(1,12,I) = AGLW(4,3,I) * B(48)
 !
       ZCETA(1,13,I) = AGLW(3,1,I)
       ZCETA(2,13,I) = AGLW(5,1,I)
-      ZCETA(3,13,I) = KZ(41,I) * DEN(3,I) * E(I)
-      ZCETA(4,13,I) = B(49) * KZ(43,I) * OMINUS(I) * DEN(3,I)
+      ZCETA(3,13,I) = KZ(41,I) * zxden(3,I) * ecalc(I)
+      ZCETA(4,13,I) = B(49) * KZ(43,I) * OMINUS(I) * zxden(3,I)
 !
       ZCETA(1,14,I) = B(46)*PHOTOI(6,3,I)
       ZCETA(2,14,I) = B(47)*B(15)*RN2EI(I)
@@ -743,7 +757,7 @@
       ZCETA(2,15,I) = AGLW(6,1,I)
       ZCETA(3,15,I) = AGLW(7,1,I)
       ZCETA(4,15,I) = B(44) * AGLW(8,1,I)
-      ZCETA(5,15,I) = KZ(45,I) * DEN(3,I) * E(I)
+      ZCETA(5,15,I) = KZ(45,I) * zxden(3,I) * ecalc(I)
 !
       ZETA(1,I)  = ZCETA(1,1,I)+ZCETA(2,1,I)
       ZETA(2,I)  = ZCETA(1,2,I)+ZCETA(2,2,I)+ZCETA(3,2,I)

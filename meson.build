@@ -30,8 +30,6 @@ incdir_f2py = run_command(py,
 
 fortran_srcs = [
   'src/GLOW/alt_grid.f90', 
-  'src/GLOW/cglow.f90', 
-  'src/GLOW/glow.f90', 
   'src/GLOW/bands.f90', 
   'src/GLOW/conduct.f90', 
   'src/GLOW/egrid.f90', 
@@ -54,21 +52,28 @@ fortran_srcs = [
   'src/GLOW/ssflux.f90', 
   'src/GLOW/iri90.f', 
   'src/GLOW/nrlmsise00.f', 
-  'src/tweaks/cglow_release.f90'
+  'src/GLOW/msis_wrap.f90',
 ]
 
 glowpython_source = custom_target('fortranmodule.c',
   input : fortran_srcs,
-  output : ['fortranmodule.c', 'fortran-f2pywrappers.f', 'fortran-f2pywrappers2.f90'],
+  output : [
+    'fortranmodule.c', 
+    'fortran-f2pywrappers.f', 
+    # 'fortran-f2pywrappers2.f90',
+    ],
   command : [py, '-m', 'numpy.f2py', '@INPUT@', '-m', 'fortran', '--lower']
 )
 
 py.install_sources(
     'src/glowpython/__init__.py',
     'src/glowpython/base.py',
+    'src/glowpython/snoem.py',
+    'src/glowpython/msis2k.py',
+    'src/glowpython/iri90.py',
+    'src/glowpython/utils.py',
+    'src/glowpython/dirsetup.py',
     'src/glowpython/version.py',
-    'src/glowpython/plots.py',
-    'src/glowpython/examples.py',
     subdir: 'glowpython',
     pure: false,
 )

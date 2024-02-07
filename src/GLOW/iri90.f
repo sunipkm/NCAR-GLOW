@@ -58,8 +58,8 @@ C                          NEGATIVE NUMBER)
 C         MMDD (-DDD)   DATE (OR DAY OF YEAR AS A NEGATIVE NUMBER)
 C         DHOUR         LOCAL TIME (OR UNIVERSAL TIME + 25) IN DECIMAL
 C                          HOURS
-C         HEIBEG,       BEGIN, END, AND STEPWIDTH OF HEIGHT RANGE
-C          HEIEND,HEISTP   IN KM (MAXIMUM NUMBER OF STEPS IS 50 !!)
+C         ZKM(NZ)       ALTITUDE PROFILE IN KM
+C         NZ            NUMBER OF ALTITUDES
 C         JF(1:12)      TRUE/FALSE FLAGS FOR SEVERAL OPTIONS
 C          JF(1)=.TRUE.[.FALSE.]   ELECTRON DENSITY IS [NOT] CALCULATED
 C          JF(2)=T[F]    TEMPERATURES ARE [NOT] CALCULATED
@@ -72,7 +72,7 @@ C          JF(8)=T[F]    NMF2 PEAK MODEL [INPUT VALUES]
 C          JF(9)=T[F]    HMF2 PEAK MODEL [INPUT VALUES]
 C          JF(10)=T[F]   TE MODEL [TE-NE MODEL WITH NE INPUT]
 C          JF(11)=T[F]   NE STANDARD [LAY-FUNCTIONS VERSION]
-C          JF(12)=T[F]   MESSAGE ARE WRITTEN TO UNIT=12 [=6]  (not used)
+C          JF(12)=T[F]   MESSAGE ARE WRITTEN TO /dev/null [stderr]
 C
 C  JF(1:11)=.TRUE. GENERATES THE STANDARD IRI-90 PARAMETERS.
 C  IF YOU SET JF(8)=.FALSE., THAN YOU HAVE TO PROVIDE THE F2 PEAK
@@ -163,6 +163,7 @@ C
      &                  ZKM,NZ,DIRECT,OUTF,OARR)
       use, intrinsic :: iso_fortran_env, only: stdout=>output_unit,
      &  stderr=>error_unit
+      ! implicit none
       dimension zkm(nz), outf(11,nz), oarr(30)
       character(*), intent(in) :: direct
       character(1024) :: path
@@ -251,9 +252,12 @@ C IUCCIR=UNIT NUMBER FOR CCIR COEFFICIENTS ........................
 C
       MONITO=6
       IUCCIR=10
-      ! KONSOL=stderr
-      KONSOL=25
-      OPEN(KONSOL,FILE="/dev/null",status="old",ERR=8448)
+      IF (JF(12)) THEN
+          KONSOL=25
+          OPEN(KONSOL,FILE="/dev/null",status="old",ERR=8448)
+      ELSE
+          KONSOL=stderr
+      ENDIF
 
 c
 c selection of density and ion composition options ..................

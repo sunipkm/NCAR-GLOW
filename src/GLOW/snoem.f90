@@ -10,15 +10,19 @@
 ! Adapted by Stan Solomon, 5/2014, from IDL and F90 code supplied by Dan Marsh. 
 ! Minor revisions to make compatible with gfortran, SCS, 4/2017
 
-    subroutine snoem(doy, kp, f107, z, mlat, nozm)
-
-      use cglow,only: snoem_zin, snoem_mlatin, snoem_no_mean, snoem_eofs
+    subroutine snoem(doy, kp, f107, z, mlat, nozm, snoem_zin, &
+      snoem_mlatin, snoem_no_mean, snoem_eofs)
 
       implicit none
 
       integer,intent(in) :: doy
       real,intent(in) :: kp, f107
       real,intent(out) :: z(16), mlat(33), nozm(33,16)
+
+      real,dimension(16),intent(in)::snoem_zin
+      real,dimension(33),intent(in)::snoem_mlatin
+      real,dimension(33,16),intent(in)::snoem_no_mean
+      real,dimension(33,16,3),intent(in)::snoem_eofs
 
       real :: theta0                 ! day number in degrees
       real :: dec                    ! solar declination angle

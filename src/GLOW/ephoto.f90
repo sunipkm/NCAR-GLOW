@@ -66,15 +66,31 @@
 ! NST     number of states produced by photoionization/dissociation
 
 
-subroutine ephoto
+subroutine ephoto(jmax,nbins,lmax,nmaj,nst &
+  ,wave1,wave2,phono,photoi,photod,pespec,zcol,sflux &
+  ,sigabs,sigion,epsil1,epsil2,ephoto_prob &
+  ,zmaj,edel,ener,zno)
 
-  use cglow,only: jmax,nbins,lmax,nmaj,nst
-  use cglow,only: wave1,wave2,phono,photoi,photod,pespec,zcol,sflux
-  use cglow,only: sigabs,sigion,epsil1,epsil2,ephoto_prob
-  use cglow,only: zmaj,edel,ener,zno
+  use, intrinsic :: iso_fortran_env, only: wp=>real32
+
+  ! use cglow,only: jmax,nbins,lmax,nmaj,nst
+  ! use cglow,only: wave1,wave2,phono,photoi,photod,pespec,zcol,sflux
+  ! use cglow,only: sigabs,sigion,epsil1,epsil2,ephoto_prob
+  ! use cglow,only: zmaj,edel,ener,zno
 
   implicit none
   save
+
+  integer:: jmax,nbins,lmax,nmaj,nst
+  real,dimension(lmax):: wave1,wave2,sflux
+  real,dimension(nst,nmaj,lmax):: epsil1, epsil2, ephoto_prob
+  real,dimension (nmaj,lmax)   :: sigion, sigabs   
+  real,dimension(nst,nmaj,jmax) :: photoi, photod
+  real,dimension(nst,jmax)   :: phono      
+  real,dimension(nbins,jmax)   :: pespec 
+  real,dimension(nmaj,jmax) :: zmaj, zcol        
+  real,dimension(jmax) :: zno
+  real(wp),dimension(nbins):: ener, edel
 
   integer :: nnn(nmaj)
   real ::   dspect(jmax), flux(lmax,jmax), &

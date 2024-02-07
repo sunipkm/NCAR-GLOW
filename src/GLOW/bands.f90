@@ -22,15 +22,22 @@
 !     zlbh   total excitation rate to each LBH v' level (cm-3 s-1)
 
 
-subroutine bands
-
-  use cglow, only: jmax, nc, aglw, zeta, zlbh
+subroutine bands(jmax, nc, nw, nmaj, nei, aglw, zeta, zlbh)
 
   implicit none
 
+  integer :: jmax, nc, nw, nmaj, nei
+  real :: aglw(nei,nmaj,jmax), zeta(nw,jmax), zlbh(nc,jmax)
+
+
   integer :: k,m
-  real :: fcfac(nc)
+  real :: fcfac(10)
   data fcfac /0.043,0.114,0.168,0.183,0.160,0.122,0.084,0.0,0.0,0.0/
+
+  if (nc .gt. 10) then
+    print *, 'Error: too many emission components in bands'
+    stop
+  endif
 
   do k=1,jmax
     do m=1,nc
