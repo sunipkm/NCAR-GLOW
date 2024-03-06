@@ -25,7 +25,7 @@ def msis2k(idate: int, ut: Numeric, stl: Numeric, glat: Numeric, glon: Numeric, 
 
     Returns:
         Dataset: Dataset containing the neutral densities of O, N2, O2, NO, Tn, and ND.
-        Densities in cm^-3 and temperature in K.
+        Densities in cm^{-3} and temperature in K.
     """
     assert (alt_km.flags.f_contiguous)
     zo = np.zeros(alt_km.shape, dtype=np.float32, order='F')
@@ -38,12 +38,12 @@ def msis2k(idate: int, ut: Numeric, stl: Numeric, glat: Numeric, glon: Numeric, 
 
     ds = Dataset(
         {
-            'O': Variable(('alt_km',), zo, attrs={'units': 'cm^-3', 'long_name': 'number density'}),
-            'N2': Variable(('alt_km',), zn2, attrs={'units': 'cm^-3', 'long_name': 'number density'}),
-            'O2': Variable(('alt_km',), zo2, attrs={'units': 'cm^-3', 'long_name': 'number density'}),
-            'NO': Variable(('alt_km',), zns, attrs={'units': 'cm^-3', 'long_name': 'number density'}),
+            'O': Variable(('alt_km',), zo, attrs={'units': 'cm^{-3}', 'long_name': 'number density'}),
+            'N2': Variable(('alt_km',), zn2, attrs={'units': 'cm^{-3}', 'long_name': 'number density'}),
+            'O2': Variable(('alt_km',), zo2, attrs={'units': 'cm^{-3}', 'long_name': 'number density'}),
+            'NO': Variable(('alt_km',), zns, attrs={'units': 'cm^{-3}', 'long_name': 'number density'}),
             'Tn': Variable(('alt_km',), ztn, attrs={'units': 'K', 'long_name': 'Temperature'}),
-            'ND': Variable(('alt_km',), znd, attrs={'units': 'cm^-3', 'long_name': 'number density'}),
+            'ND': Variable(('alt_km',), znd, attrs={'units': 'cm^{-3}', 'long_name': 'number density'}),
         },
         coords={'alt_km': ('alt_km', alt_km, {'standard_name': 'altitude', 'units': 'km', 'long_name': 'Altitude'})},
     )

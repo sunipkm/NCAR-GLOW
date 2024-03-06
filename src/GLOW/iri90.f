@@ -161,13 +161,12 @@ C*****************************************************************
 C
        SUBROUTINE IRI90(JF,JMAG,ALATI,ALONG,RZ12,MMDD,DHOUR,
      &                  ZKM,NZ,DIRECT,OUTF,OARR)
-      use, intrinsic :: iso_fortran_env, only: stdout=>output_unit,
-     &  stderr=>error_unit
+      ! use, intrinsic :: iso_fortran_env, only: stdout=>output_unit,
+!      &  stderr=>error_unit
       ! implicit none
+      integer stdout, stderr
       dimension zkm(nz), outf(11,nz), oarr(30)
-      character(*), intent(in) :: direct
-      character(1024) :: path
-      character(10) filename
+      character direct(1024), path(1024), filename(10)
       INTEGER 		EGNR,AGNR,DAYNR,DDO,DO2,SEASON,SEADAY
       REAL 		LATI,LONGI,MO2,MO,MODIP,NMF2,MAGBR
       REAL  		NMF1,NME,NMD,NEI,MM,MLAT,MLONG,NOBO2
@@ -204,6 +203,9 @@ C
      &     SCHALT,SSIN,TCON,F1REG,FOF2IN,HMF2IN,URSIF2,LAYVER,
      &     DY,GULB0,NODEN,NOTEM,NOION,TENEOP,OLD79,TOPSI,BOTTO,BELOWE,
      &     URSIFO,MONTH,MONTHO,RG,RGO
+
+      stdout = 6
+      stderr = 0
 C
 C PROGAM CONSTANTS
 C
@@ -426,7 +428,7 @@ C
 7797    WRITE(filename,104) MONTH+10
 104     FORMAT('ccir',I2,'.asc')
         call dfp(direct,filename,path)
-        OPEN(IUCCIR,FILE=path,STATUS='OLD',ERR=8448)
+        OPEN(IUCCIR,FILE='./PATH',STATUS='OLD',ERR=8448)
         READ(IUCCIR,4689) F2,FM3
 4689    FORMAT(4E15.8)
         CLOSE(IUCCIR)
@@ -437,7 +439,7 @@ C
 	  WRITE(filename,1144) MONTH+10
 1144      FORMAT('ursi',I2,'.asc')
           call dfp(direct,filename,path)
-          OPEN(IUCCIR,FILE=path,STATUS='OLD',ERR=8448)
+          OPEN(IUCCIR,FILE='./PATH',STATUS='OLD',ERR=8448)
           READ(IUCCIR,4689) F2
           CLOSE(IUCCIR)
 	endif
@@ -445,7 +447,7 @@ C
         MONTHO=MONTH
 	GOTO 4291
 
-8448	write(stderr,*) path // ' IRI90: File not found'
+8448	write(stderr,*) './PATH' // ' IRI90: File not found'
         stop 1
 
 

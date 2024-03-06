@@ -50,13 +50,13 @@ class MeanNO:
             2. `alt_km` and `ztn` have the same shape.
 
         Returns:
-            np.ndarray: NO density at Z in cm^-3.
+            np.ndarray: NO density at Z in cm^{-3}.
         """
         assert(alt_km.flags.f_contiguous)
         assert(ztn.flags.f_contiguous)
         assert(alt_km.shape == ztn.shape)
         out = snoemint(idate, glat, glon, f107, ap, alt_km, ztn, self._zin, self._mlatin, self._no_mean, self._eofs)
-        return xr.Variable(('alt_km',), out, attrs={'units': 'cm^-3'})
+        return xr.Variable(('alt_km',), out, attrs={'units': 'cm^{-3}'})
     
     def __copy__(self):
         """Return a deep copy of the object.
